@@ -1,0 +1,7 @@
+# Original of the welcome illustration (1.6 MB). The site uses images/welcome-illustration.webp instead.
+image.png
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini

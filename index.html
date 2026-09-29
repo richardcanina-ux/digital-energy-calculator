@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Digital Energy Calculator | Energiae</title>
+  <meta name="description" content="Estimate the yearly electricity behind your streaming, gaming, AI and cloud habits, then pledge one change. An Energiae project at Miami Dade College.">
+  <meta name="theme-color" content="#2433D6">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232433D6'/%3E%3Cpath d='M18 4 8 18h7l-2 10 11-15h-7z' fill='%23FFD23F'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    // Runs before the page is drawn. If the page is about to switch to Spanish, hide it for a moment
+    // so English doesn't flash first. Same rule as pickLanguage() in app.js; applyLanguage() shows the
+    // page again, and a 3-second fallback shows it even if something goes wrong.
+    (function () {
+      var lang = new URLSearchParams(location.search).get("lang");
+      if (lang !== "en" && lang !== "es") {
+        try { lang = localStorage.getItem("energiae-lang"); } catch (e) { lang = null; }
+      }
+      if (lang !== "en" && lang !== "es") {
+        lang = (navigator.language || "en").toLowerCase().indexOf("es") === 0 ? "es" : "en";
+      }
+      if (lang === "es") {
+        document.documentElement.classList.add("i18n-pending");
+        setTimeout(function () { document.documentElement.classList.remove("i18n-pending"); }, 3000);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <!-- Icon set: each category icon is drawn once here and reused with <use href="#i-..."> -->
+  <svg class="icon-sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-video" viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="13" rx="2"/><path d="M10 8.5v5l4.5-2.5z" fill="currentColor" stroke="none"/><path d="M8 21h8"/></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24"><path d="M4 16v-4a8 8 0 0 1 16 0v4"/><rect x="3" y="14" width="4.5" height="7" rx="1.5"/><rect x="16.5" y="14" width="4.5" height="7" rx="1.5"/></symbol>
+    <symbol id="i-social" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M9.5 7h5M9.5 11h5M9.5 15h3"/></symbol>
+    <symbol id="i-gaming" viewBox="0 0 24 24"><path d="M7 7h10a5 5 0 0 1 5 5v1a3.5 3.5 0 0 1-6.2 2.2L14.5 14h-5l-1.3 1.2A3.5 3.5 0 0 1 2 13v-1a5 5 0 0 1 5-5z"/><path d="M7.5 9.5v3M6 11h3"/><circle cx="15.5" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="17.5" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-calls" viewBox="0 0 24 24"><rect x="2" y="6" width="13" height="12" rx="2"/><path d="M15 10.5 21 7v10l-6-3.5z"/></symbol>
+    <symbol id="i-ai" viewBox="0 0 24 24"><path d="M11 3l1.8 5.2L18 10l-5.2 1.8L11 17l-1.8-5.2L4 10l5.2-1.8z"/><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" fill="currentColor"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 19h10.5a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.2 11 4 4 0 0 0 7 19z"/></symbol>
+    <symbol id="i-devices" viewBox="0 0 24 24"><path d="M9 2v5M15 2v5M6 7h12v3.5a6 6 0 0 1-12 0zM12 16.5V22"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
+    <symbol id="i-co2" viewBox="0 0 24 24"><path d="M7 19.5h10.5a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.2 11.5 4 4 0 0 0 7 19.5z"/><text x="12.2" y="17.2" text-anchor="middle" font-size="5.8" font-weight="700" font-family="system-ui, sans-serif" fill="currentColor" stroke="none">CO₂</text></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M12 2.5a6.2 6.2 0 0 0-3.7 11.2c.7.5 1.2 1.3 1.2 2.2v.6h5v-.6c0-.9.5-1.7 1.2-2.2A6.2 6.2 0 0 0 12 2.5z" style="fill: var(--volt)"/><path d="M9.5 19h5M10.5 21.5h3"/></symbol>
+  </svg>
+
+  <!-- Text in elements with data-i18n comes from data/strings.js (English or Spanish). -->
+  <header class="site-header">
+    <a class="wordmark" href="index.html" aria-label="Energiae home" data-i18n-aria="nav.home">
+      <svg class="wordmark-bolt" viewBox="0 0 32 32" aria-hidden="true"><path d="M18 4 8 18h7l-2 10 11-15h-7z"/></svg>
+      Energiae
+    </a>
+    <div class="header-actions">
+      <a class="header-link header-link-optional" href="about.html" data-i18n="nav.about">About the numbers</a>
+      <button type="button" class="lang-toggle" id="lang-toggle" lang="es" data-i18n="lang.switch" data-i18n-aria="lang.switchAria">Español</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <h1 class="visually-hidden" data-i18n="app.name">Digital Energy Calculator</h1>
+
+    <!-- STEP 0: WELCOME -->
+    <section class="step intro welcome" id="step-welcome" aria-labelledby="welcome-title">
+      <h2 id="welcome-title" tabindex="-1" data-i18n="welcome.title">What does your screen time cost the grid?</h2>
+      <!-- The numbers in these facts come from data/coefficients.js (data-c). -->
+      <p class="lede" data-i18n-html="welcome.facts"></p>
+
+      <!-- Decorative illustration (the facts above carry the meaning, so alt is empty).
+           If the file is missing, it hides itself and the layout stays one column. -->
+      <figure class="welcome-art">
+        <img src="images/welcome-illustration.webp" alt="" width="1000" height="667" onerror="this.parentElement.hidden = true">
+      </figure>
+
+      <ul class="welcome-features">
+        <li><svg class="feature-icon" aria-hidden="true" focusable="false"><use href="#i-clock"></use></svg><span><strong data-i18n="welcome.f1t">In about two minutes</strong><span data-i18n="welcome.f1d">you'll see your yearly electricity use</span></span></li>
+        <li><svg class="feature-icon" aria-hidden="true" focusable="false"><use href="#i-co2"></use></svg><span><strong data-i18n="welcome.f2t">Your CO₂ on Florida's grid</strong><span data-i18n="welcome.f2d">what that electricity puts in the air</span></span></li>
+        <li><svg class="feature-icon" aria-hidden="true" focusable="false"><use href="#i-bulb"></use></svg><span><strong data-i18n="welcome.f3t">Tips for your biggest habits</strong><span data-i18n="welcome.f3d">and one habit you can change</span></span></li>
+      </ul>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary" data-go="habits"><span data-i18n="welcome.start">Find my digital footprint</span><svg class="btn-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </div>
+      <p class="welcome-how"><a href="about.html" data-i18n="welcome.how">How we calculate this</a></p>
+      <p class="privacy" data-i18n="welcome.privacy">Anonymous: we never ask for your name, email or student ID.</p>
+
+      <!-- Decorative power line; app.js sizes it to the screen and sends one pulse of "current" along it. -->
+      <svg class="power-line" id="power-line" aria-hidden="true" focusable="false">
+        <g class="poles"></g>
+        <path class="wire"/>
+        <path class="pulse" pathLength="100"/>
+      </svg>
+    </section>
+
+    <ol class="progress" id="progress" aria-label="Steps" data-i18n-aria="progress.aria" hidden>
+      <li data-step="habits"><span data-i18n="progress.habits">Your habits</span></li>
+      <li data-step="results"><span data-i18n="progress.results">Your results</span></li>
+      <li data-step="pledge"><span data-i18n="progress.pledge">Your pledge</span></li>
+    </ol>
+
+    <!--
+      Netlify Forms: Netlify reads this form when the site deploys.
+      Every field we want to save must exist here in the HTML (even the ones JS fills in).
+      No field asks for a name, email, student ID or anything else personal.
+      Saved values are always the same codes in English and Spanish, so the data never splits by language.
+    -->
+    <form id="calc-form" name="pledge-responses" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+      <input type="hidden" name="form-name" value="pledge-responses">
+      <p class="honeypot" aria-hidden="true">
+        <label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label>
+      </p>
+
+      <!-- STEP 1: HABITS -->
+      <section class="step" id="step-habits" aria-labelledby="habits-title" hidden>
+        <div class="habits-head">
+          <h2 id="habits-title" tabindex="-1" data-i18n="habits.title">Your habits</h2>
+          <p class="lede" data-i18n="habits.lede">Enter a normal day. Rough guesses are fine.</p>
+        </div>
+
+        <fieldset class="group">
+          <legend data-i18n="group.watch">Watch and listen</legend>
+
+          <div class="field">
+            <label for="video_hours"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-video"></use></svg><span data-i18n="video.label">Video streaming</span> <span class="hint" data-i18n="video.hint">Netflix, YouTube, Disney+, Twitch</span></label>
+            <div class="slider-row">
+              <input type="range" id="video_hours" name="video_hours" min="0" max="12" step="0.5" value="2">
+              <output for="video_hours"></output>
+            </div>
+          </div>
+
+          <fieldset class="field choice">
+            <legend data-i18n="quality.legend">Usual video quality</legend>
+            <div class="segmented">
+              <label><input type="radio" name="video_quality" value="SD"><span>SD</span></label>
+              <label><input type="radio" name="video_quality" value="HD" checked><span>HD</span></label>
+              <label><input type="radio" name="video_quality" value="4K"><span>4K</span></label>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <label for="music_hours"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-music"></use></svg><span data-i18n="music.label">Music and podcasts</span> <span class="hint" data-i18n="music.hint">streamed, not downloaded</span></label>
+            <div class="slider-row">
+              <input type="range" id="music_hours" name="music_hours" min="0" max="12" step="0.5" value="1.5">
+              <output for="music_hours"></output>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="group">
+          <legend data-i18n="group.scroll">Scroll and play</legend>
+
+          <div class="field">
+            <label for="social_hours"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-social"></use></svg><span data-i18n="social.label">Social media scrolling</span> <span class="hint" data-i18n="social.hint">Instagram, TikTok, Snapchat, X</span></label>
+            <div class="slider-row">
+              <input type="range" id="social_hours" name="social_hours" min="0" max="12" step="0.5" value="2.5">
+              <output for="social_hours"></output>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="gaming_hours"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-gaming"></use></svg><span data-i18n="gaming.label">Gaming</span></label>
+            <div class="slider-row">
+              <input type="range" id="gaming_hours" name="gaming_hours" min="0" max="12" step="0.5" value="1">
+              <output for="gaming_hours"></output>
+            </div>
+          </div>
+
+          <fieldset class="field choice">
+            <legend data-i18n="platform.legend">Mostly play on</legend>
+            <div class="segmented">
+              <label><input type="radio" name="gaming_platform" value="phone" checked><span data-i18n="platform.phone">Phone</span></label>
+              <label><input type="radio" name="gaming_platform" value="console"><span data-i18n="platform.console">Console</span></label>
+              <label><input type="radio" name="gaming_platform" value="pc"><span data-i18n="platform.pc">PC</span></label>
+            </div>
+          </fieldset>
+        </fieldset>
+
+        <fieldset class="group">
+          <legend data-i18n="group.talk">Talk and ask</legend>
+
+          <div class="field">
+            <label for="calls_hours"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-calls"></use></svg><span data-i18n="calls.label">Video calls</span> <span class="hint" data-i18n="calls.hint">Zoom, FaceTime, Teams</span></label>
+            <div class="slider-row">
+              <input type="range" id="calls_hours" name="calls_hours" min="0" max="8" step="0.5" value="0.5">
+              <output for="calls_hours"></output>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="ai_prompts"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-ai"></use></svg><span data-i18n="aiPrompts.label">AI chatbot prompts</span> <span class="hint" data-i18n="aiPrompts.hint">messages to ChatGPT, Gemini, Claude, per day</span></label>
+            <div class="stepper">
+              <button type="button" class="step-btn" data-step-for="ai_prompts" data-delta="-1" aria-label="Fewer AI prompts" data-i18n-aria="aria.fewerPrompts">−</button>
+              <input type="number" id="ai_prompts" name="ai_prompts" min="0" max="200" step="1" value="5" inputmode="numeric">
+              <button type="button" class="step-btn" data-step-for="ai_prompts" data-delta="1" aria-label="More AI prompts" data-i18n-aria="aria.morePrompts">+</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="ai_images"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-ai"></use></svg><span data-i18n="aiImages.label">AI images generated</span> <span class="hint" data-i18n="aiImages.hint">per day</span></label>
+            <div class="stepper">
+              <button type="button" class="step-btn" data-step-for="ai_images" data-delta="-1" aria-label="Fewer AI images" data-i18n-aria="aria.fewerImages">−</button>
+              <input type="number" id="ai_images" name="ai_images" min="0" max="100" step="1" value="0" inputmode="numeric">
+              <button type="button" class="step-btn" data-step-for="ai_images" data-delta="1" aria-label="More AI images" data-i18n-aria="aria.moreImages">+</button>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="group">
+          <legend data-i18n="group.store">Store and charge</legend>
+
+          <div class="field">
+            <label for="cloud_gb"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-cloud"></use></svg><span data-i18n="cloud.label">Cloud storage used, in GB</span> <span class="hint" data-i18n="cloud.hint">a rough guess is fine: check how much you use in iCloud, Google or OneDrive settings, not your plan size</span></label>
+            <div class="stepper">
+              <button type="button" class="step-btn" data-step-for="cloud_gb" data-delta="-10" aria-label="10 GB less" data-i18n-aria="aria.lessCloud">−</button>
+              <input type="number" id="cloud_gb" name="cloud_gb" min="0" max="5000" step="1" value="50" inputmode="numeric">
+              <button type="button" class="step-btn" data-step-for="cloud_gb" data-delta="10" aria-label="10 GB more" data-i18n-aria="aria.moreCloud">+</button>
+            </div>
+          </div>
+
+          <p class="field-note"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-devices"></use></svg><span data-i18n="devices.note">Devices you charge every day</span></p>
+          <div class="device-row">
+            <div class="field">
+              <label for="phones" data-i18n="devices.phones">Phones</label>
+              <div class="stepper">
+                <button type="button" class="step-btn" data-step-for="phones" data-delta="-1" aria-label="One fewer phone" data-i18n-aria="aria.fewerPhones">−</button>
+                <input type="number" id="phones" name="phones" min="0" max="5" step="1" value="1" inputmode="numeric">
+                <button type="button" class="step-btn" data-step-for="phones" data-delta="1" aria-label="One more phone" data-i18n-aria="aria.morePhones">+</button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="laptops" data-i18n="devices.laptops">Laptops</label>
+              <div class="stepper">
+                <button type="button" class="step-btn" data-step-for="laptops" data-delta="-1" aria-label="One fewer laptop" data-i18n-aria="aria.fewerLaptops">−</button>
+                <input type="number" id="laptops" name="laptops" min="0" max="5" step="1" value="1" inputmode="numeric">
+                <button type="button" class="step-btn" data-step-for="laptops" data-delta="1" aria-label="One more laptop" data-i18n-aria="aria.moreLaptops">+</button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="tablets" data-i18n="devices.tablets">Tablets</label>
+              <div class="stepper">
+                <button type="button" class="step-btn" data-step-for="tablets" data-delta="-1" aria-label="One fewer tablet" data-i18n-aria="aria.fewerTablets">−</button>
+                <input type="number" id="tablets" name="tablets" min="0" max="5" step="1" value="0" inputmode="numeric">
+                <button type="button" class="step-btn" data-step-for="tablets" data-delta="1" aria-label="One more tablet" data-i18n-aria="aria.moreTablets">+</button>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <p class="overlap-note" id="overlap-note" data-i18n="habits.overlap" hidden>That adds up to more than 24 hours. That's fine if you do some things at the same time.</p>
+
+        <div class="actions">
+          <button type="button" class="btn btn-primary" data-go="results" data-i18n="habits.next">See my results</button>
+        </div>
+      </section>
+
+      <!-- STEP 2: RESULTS -->
+      <section class="step" id="step-results" aria-labelledby="results-title" hidden>
+        <div class="results-layout">
+          <div class="card" id="result-card">
+            <div class="card-head">
+              <p class="card-brand">
+                <svg class="wordmark-bolt" viewBox="0 0 32 32" aria-hidden="true"><path d="M18 4 8 18h7l-2 10 11-15h-7z"/></svg>
+                Energiae
+              </p>
+              <h2 id="results-title" class="card-title" tabindex="-1" data-i18n="results.title">My digital year</h2>
+            </div>
+            <div class="meter-row">
+              <div class="meter" id="meter" role="img" aria-label=""></div>
+              <!-- Like the spinning disk in a real electric meter: it spins faster when you use more. -->
+              <div class="disk-wrap">
+                <svg class="disk" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                  <circle class="disk-window" cx="32" cy="32" r="30"/>
+                  <g class="disk-spin">
+                    <circle class="disk-plate" cx="32" cy="32" r="23"/>
+                    <rect class="disk-mark" x="28" y="9" width="8" height="6" rx="1.5"/>
+                    <circle class="disk-hub" cx="32" cy="32" r="3.5"/>
+                  </g>
+                </svg>
+                <p class="disk-watts"><span aria-hidden="true"><span id="avg-watts"></span> W, 24/7</span><span class="visually-hidden" id="avg-watts-sr"></span></p>
+              </div>
+            </div>
+            <p class="meter-unit" aria-hidden="true" data-i18n="meter.unit">kWh of electricity a year</p>
+
+            <dl class="card-stats">
+              <div><dt data-i18n="stat.co2">CO₂ on Florida's grid</dt><dd><span id="co2-kg"></span> kg</dd></div>
+              <div><dt data-i18n="stat.phone">Same as charging a phone</dt><dd><span id="phone-charges"></span> <span data-i18n="unit.times">times</span></dd></div>
+              <div><dt data-i18n="stat.home">Powering a Florida home</dt><dd><span id="home-days"></span> <span data-i18n="unit.days">days</span></dd></div>
+            </dl>
+
+            <!-- Florida's electricity mix (EPA eGRID), filled in by app.js from coefficients.js -->
+            <div class="grid-mix">
+              <div class="mix-bar" id="mix-bar" aria-hidden="true"></div>
+              <p class="mix-label" id="mix-label"></p>
+            </div>
+
+            <h3 class="card-subtitle" data-i18n="results.where">Where it goes, in kWh a year</h3>
+            <ul class="bars" id="bars"></ul>
+
+            <p class="card-foot" data-i18n="card.foot">Estimate by Energiae at Miami Dade College North</p>
+          </div>
+
+          <div class="results-side">
+            <fieldset class="group expectation">
+              <legend data-i18n="expect.legend">Compared to what you expected, this is…</legend>
+              <div class="choice-list">
+                <label><input type="radio" name="expectation" value="higher" required><span data-i18n="expect.higher">Higher than I expected</span></label>
+                <label><input type="radio" name="expectation" value="about-right"><span data-i18n="expect.about">About what I expected</span></label>
+                <label><input type="radio" name="expectation" value="lower"><span data-i18n="expect.lower">Lower than I expected</span></label>
+                <label><input type="radio" name="expectation" value="no-idea"><span data-i18n="expect.noIdea">I had no idea</span></label>
+              </div>
+            </fieldset>
+
+            <div class="tips" id="tips">
+              <h3 id="tips-title">Your top 3 places to cut</h3>
+              <ol id="tips-list"></ol>
+            </div>
+
+            <p class="screenshot-hint" data-i18n="results.screenshot">Screenshot the blue card to share it.</p>
+
+            <div class="actions">
+              <button type="button" class="btn btn-quiet" data-go="habits" data-i18n="results.edit">Edit my habits</button>
+              <button type="button" class="btn btn-primary" data-go="pledge" data-i18n="results.next">Choose a pledge</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 3: PLEDGE -->
+      <section class="step" id="step-pledge" aria-labelledby="pledge-title" hidden>
+        <h2 id="pledge-title" tabindex="-1">Pick one habit to change</h2>
+        <p class="lede" id="pledge-lede" data-i18n="pledge.lede">Your options are sorted by how much energy they would save you in a year.</p>
+
+        <!-- Mini meter: rolls down to your new total when you pick a pledge -->
+        <div class="pledge-meter">
+          <p class="pledge-meter-label" id="pledge-meter-label">Your year, in kWh</p>
+          <div class="pledge-meter-row">
+            <div class="meter meter-small" id="pledge-meter" role="img" aria-label=""></div>
+            <p class="pledge-change" id="pledge-change"></p>
+          </div>
+        </div>
+
+        <fieldset class="group" id="pledge-group">
+          <legend class="visually-hidden" data-i18n="pledge.legend">Your pledge</legend>
+          <!-- JS hides the options that don't apply to you and fills in the savings. -->
+          <div class="pledge-list" id="pledge-list">
+            <label class="pledge" data-pledge="video_less"><input type="radio" name="pledge" value="video_less" required><span class="pledge-text" data-i18n="pledge.video_less">Stream 1 hour less video a day</span><span class="pledge-save"></span></label>
+            <label class="pledge" data-pledge="video_hd"><input type="radio" name="pledge" value="video_hd" required><span class="pledge-text" data-i18n="pledge.video_hd">Watch in HD instead of 4K</span><span class="pledge-save"></span></label>
+            <label class="pledge" data-pledge="music_less"><input type="radio" name="pledge" value="music_less" required><span class="pledge-text" data-i18n="pledge.music_less">Stream music 1 hour less a day, and play downloads instead</span><span class="pledge-save"></span></label>
+            <label class="pledge" data-pledge="social_less"><input type="radio" name="pledge" value="social_less" required><span class="pledge-text" data-i18n="pledge.social_less">Scroll social media 1 hour less a day</span><span class="pledge-save"></span></label>
+            <label class="pledge" data-pledge="gaming_less"><input type="radio" name="pledge" value="gaming_less" required><span class="pledge-text" data-i18n="pledge.gaming_less">Game 1 hour less a day</span><span class="pledge-save"></span></label>
+            <label class="pledge" data-pledge="gaming_phone"><input type="radio" name="pledge" value="gaming_phone" required><span class="pledge-text" data-i18n="pledge.gaming_phone">Play on my phone instead of a console or PC</span><span class="pledge-save"></span></label>
+            <label class="pledge" data-pledge="calls_less"><input type="radio" name="pledge" value="calls_less" required><span class="pledge-text" data-i18n="pledge.calls_less">Swap 30 minutes of video calls a day for messages</span><span class="pledge-save"></span></label>
+            <label class="pledge" data-pledge="ai_fewer"><input type="radio" name="pledge" value="ai_fewer" required><span class="pledge-text" data-i18n="pledge.ai_fewer">Send 5 fewer AI prompts a day</span><span class="pledge-save"></span></label>
+            <label class="pledge" data-pledge="ai_no_images"><input type="radio" name="pledge" value="ai_no_images" required><span class="pledge-text" data-i18n="pledge.ai_no_images">Stop generating AI images</span><span class="pledge-save"></span></label>
+            <label class="pledge" data-pledge="cloud_half"><input type="radio" name="pledge" value="cloud_half" required><span class="pledge-text" data-i18n="pledge.cloud_half">Delete half of my cloud files</span><span class="pledge-save"></span></label>
+          </div>
+        </fieldset>
+
+        <div class="field select-field">
+          <label for="heard_from" data-i18n="heard.label">Where did you hear about this?</label>
+          <!-- The saved value is always the English text, whatever language is showing. -->
+          <select id="heard_from" name="heard_from" required>
+            <option value="" data-i18n="heard.choose">Choose one</option>
+            <option value="Tabling – North Campus" data-i18n="heard.tabling">Tabling – North Campus</option>
+            <option value="Honors College" data-i18n="heard.honors">Honors College</option>
+            <option value="INIT meeting" data-i18n="heard.init">INIT meeting</option>
+            <option value="Other club" data-i18n="heard.club">Other club</option>
+            <option value="Other" data-i18n="heard.other">Other</option>
+          </select>
+        </div>
+
+        <!-- Filled in by app.js right before sending. -->
+        <input type="hidden" name="kwh_total">
+        <input type="hidden" name="co2_kg_total">
+        <input type="hidden" name="kwh_video">
+        <input type="hidden" name="kwh_music">
+        <input type="hidden" name="kwh_social">
+        <input type="hidden" name="kwh_gaming">
+        <input type="hidden" name="kwh_calls">
+        <input type="hidden" name="kwh_ai">
+        <input type="hidden" name="kwh_cloud">
+        <input type="hidden" name="kwh_devices">
+        <input type="hidden" name="top_category">
+        <input type="hidden" name="pledge_kwh_saved">
+        <input type="hidden" name="model_version">
+        <input type="hidden" name="language">
+
+        <p class="form-error" id="form-error" role="alert" tabindex="-1" hidden></p>
+
+        <div class="actions">
+          <button type="button" class="btn btn-quiet" data-go="results" data-i18n="pledge.back">Back to results</button>
+          <button type="submit" class="btn btn-primary" id="submit-btn">Send my pledge</button>
+        </div>
+        <p class="privacy" data-i18n="pledge.privacy">We save your answers above with no name, email or student ID attached. Energiae uses the combined results in a class presentation.</p>
+      </section>
+
+      <!-- THANK YOU -->
+      <section class="step" id="step-thanks" aria-labelledby="thanks-title" hidden>
+        <h2 id="thanks-title" tabindex="-1">Pledge sent. Thank you.</h2>
+        <p class="lede" id="thanks-summary"></p>
+        <p class="preview-note" id="preview-note" data-i18n="thanks.preview" hidden>Local preview: nothing was sent. Submissions only work on the deployed Netlify site.</p>
+        <div class="actions">
+          <button type="button" class="btn btn-quiet" id="restart-btn" data-i18n="thanks.restart">Start over</button>
+          <a class="btn btn-quiet" href="about.html" data-i18n="thanks.how">How we calculated this</a>
+        </div>
+      </section>
+    </form>
+
+    <!--
+      FEEDBACK: a second, separate Netlify form ("site-feedback"), so feedback never mixes with the research data.
+      It appears on the thank-you screen, and the footer link "Give feedback" opens it from anywhere.
+      Anonymous: no name, email or student ID fields. came_from and language are filled in by app.js
+      (came_from: "thank-you" if they finished the calculator, "footer" if not).
+    -->
+    <section class="feedback" id="feedback" aria-labelledby="feedback-title" hidden>
+      <form id="feedback-form" name="site-feedback" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+        <input type="hidden" name="form-name" value="site-feedback">
+        <input type="hidden" name="came_from" value="">
+        <input type="hidden" name="language" value="">
+        <p class="honeypot" aria-hidden="true">
+          <label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label>
+        </p>
+
+        <h2 id="feedback-title" tabindex="-1" data-i18n="fb.title">Tell us what you think</h2>
+
+        <fieldset class="field choice">
+          <legend><span data-i18n="fb.rating">How useful was this calculator?</span> <span class="hint" data-i18n="fb.ratingHint">1 = not useful, 5 = very useful</span></legend>
+          <div class="segmented">
+            <label><input type="radio" name="usefulness" value="1" required><span>1</span></label>
+            <label><input type="radio" name="usefulness" value="2" required><span>2</span></label>
+            <label><input type="radio" name="usefulness" value="3" required><span>3</span></label>
+            <label><input type="radio" name="usefulness" value="4" required><span>4</span></label>
+            <label><input type="radio" name="usefulness" value="5" required><span>5</span></label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="feedback-comment"><span data-i18n="fb.comment">Anything we should improve or add?</span> <span class="hint" id="comment-hint" data-i18n="fb.commentHint">Optional. Please don't include your name, email or other personal details.</span></label>
+          <textarea id="feedback-comment" name="comment" rows="4" maxlength="500" aria-describedby="comment-hint comment-count"></textarea>
+          <p class="char-count" id="comment-count">500 characters left</p>
+        </div>
+
+        <p class="form-error" id="feedback-error" role="alert" tabindex="-1" hidden></p>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary" id="feedback-submit">Send feedback</button>
+        </div>
+      </form>
+
+      <div id="feedback-thanks" hidden>
+        <h2 id="feedback-thanks-title" tabindex="-1" data-i18n="fb.thanksTitle">Thanks for your feedback.</h2>
+        <p data-i18n="fb.thanksText">It helps us make the calculator better.</p>
+        <p class="preview-note" id="feedback-preview-note" data-i18n="fb.preview" hidden>Local preview: nothing was sent. Feedback only sends on the deployed Netlify site.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p class="wordmark wordmark-small">
+      <svg class="wordmark-bolt" viewBox="0 0 32 32" aria-hidden="true"><path d="M18 4 8 18h7l-2 10 11-15h-7z"/></svg>
+      Energiae
+    </p>
+    <p data-i18n="footer.project">The Hidden Energy Cost of the Digital World. A PBL project by Richard Canina Miranda, Isaac Suarez and Lucas Alvarado for IDH 2003 Honors Leadership Seminar, Miami Dade College North Campus.</p>
+    <p class="footer-links"><a href="about.html" data-i18n="footer.about">About the numbers and sources</a><a href="#feedback" id="feedback-link" data-i18n="footer.feedback">Give feedback</a></p>
+  </footer>
+
+  <script src="data/coefficients.js"></script>
+  <script src="data/strings.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
