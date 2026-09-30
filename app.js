@@ -194,6 +194,7 @@ function applyLanguage() {
   document.querySelectorAll("[data-i18n]").forEach((el) => (el.textContent = t(el.dataset.i18n)));
   document.querySelectorAll("[data-i18n-html]").forEach((el) => (el.innerHTML = t(el.dataset.i18nHtml)));
   document.querySelectorAll("[data-i18n-aria]").forEach((el) => el.setAttribute("aria-label", t(el.dataset.i18nAria)));
+  document.querySelectorAll("[data-i18n-label]").forEach((el) => (el.label = t(el.dataset.i18nLabel))); // list group headings
   document.querySelectorAll("[data-show-lang]").forEach((el) => (el.hidden = el.dataset.showLang !== lang));
   const toggle = document.getElementById("lang-toggle");
   if (toggle) toggle.lang = lang === "en" ? "es" : "en"; // the button is written in the other language

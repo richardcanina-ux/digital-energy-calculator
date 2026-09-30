@@ -60,7 +60,7 @@ Each row is one completed calculator. Columns:
 | `top_category` | Their biggest category (`none` if every habit was 0) |
 | `expectation` | RQ5: `higher`, `about-right`, `lower` or `no-idea` compared to what they expected |
 | `pledge`, `pledge_kwh_saved` | The habit they chose and its yearly kWh saving. `pledge` is `none` and `pledge_kwh_saved` is 0 when none of the pledges fit their habits (for example, only device charging) |
-| `heard_from` | Where they heard about the calculator |
+| `heard_from` | Where they heard about the calculator. Codes: `Tabling – North Campus`, `Professor – in class`, `Professor – email or course page`, `Department or chairperson`, `Honors College`, `INIT meeting`, `Other club` (any club or student organization), `Campus event or presentation`, `Flyer or poster`, `Classmate or friend`, `Text or group chat`, `LinkedIn`, `Instagram`, `Other social media`, `Web search`, `Other` |
 | `habits_changed` | How many of the 16 habit answers they changed from where the form starts (0 to 16). **0 means they clicked straight through**, so their numbers are just the starting values: leave those rows out of the analysis. (Before their first results, anyone who hasn't changed anything sees a note asking "Are these really your habits?" and has to tap again to continue.) Empty in rows sent before this column was added |
 | `model_version` | Which version of `coefficients.js` produced the numbers. `2026-09-v1` didn't count TVs, monitors, studying or browsing; `2026-09-v2` adds the TV or monitor for video, a TV for console gaming, a monitor for PC gaming, and studying and browsing online, so compare the two groups carefully |
 | `language` | `en` or `es`: the language they used |

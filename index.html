@@ -431,14 +431,33 @@
 
         <div class="field select-field">
           <label for="heard_from" data-i18n="heard.label">Where did you hear about this?</label>
-          <!-- The saved value is always the English text, whatever language is showing. -->
+          <!-- The saved value is always the same short English code, whatever language is showing.
+               The first five codes (Tabling, Honors College, INIT meeting, Other club, Other) are unchanged
+               from the first version, so older and newer responses match. Groups only help people scan the list. -->
           <select id="heard_from" name="heard_from" required>
             <option value="" data-i18n="heard.choose">Choose one</option>
-            <option value="Tabling – North Campus" data-i18n="heard.tabling">Tabling – North Campus</option>
-            <option value="Honors College" data-i18n="heard.honors">Honors College</option>
-            <option value="INIT meeting" data-i18n="heard.init">INIT meeting</option>
-            <option value="Other club" data-i18n="heard.club">Other club</option>
-            <option value="Other" data-i18n="heard.other">Other</option>
+            <optgroup label="At Miami Dade College" data-i18n-label="heard.groupMdc">
+              <option value="Tabling – North Campus" data-i18n="heard.tabling">Tabling – North Campus</option>
+              <option value="Professor – in class" data-i18n="heard.profClass">A professor, in class</option>
+              <option value="Professor – email or course page" data-i18n="heard.profOnline">A professor's email or course page</option>
+              <option value="Department or chairperson" data-i18n="heard.department">A department chair or department email</option>
+              <option value="Honors College" data-i18n="heard.honors">Honors College</option>
+              <option value="INIT meeting" data-i18n="heard.init">INIT meeting</option>
+              <option value="Other club" data-i18n="heard.club">Another club or student organization</option>
+              <option value="Campus event or presentation" data-i18n="heard.event">A campus event or presentation</option>
+              <option value="Flyer or poster" data-i18n="heard.flyer">A flyer or poster (QR code)</option>
+            </optgroup>
+            <optgroup label="Friends and social media" data-i18n-label="heard.groupSocial">
+              <option value="Classmate or friend" data-i18n="heard.friend">A classmate or friend</option>
+              <option value="Text or group chat" data-i18n="heard.chat">A text or group chat (WhatsApp, GroupMe…)</option>
+              <option value="LinkedIn" data-i18n="heard.linkedin">LinkedIn</option>
+              <option value="Instagram" data-i18n="heard.instagram">Instagram</option>
+              <option value="Other social media" data-i18n="heard.social">Another social network (TikTok, Facebook, X…)</option>
+            </optgroup>
+            <optgroup label="Other ways" data-i18n-label="heard.groupOther">
+              <option value="Web search" data-i18n="heard.search">A web search (Google…)</option>
+              <option value="Other" data-i18n="heard.other">Other</option>
+            </optgroup>
           </select>
         </div>
 
