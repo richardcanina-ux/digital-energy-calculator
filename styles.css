@@ -233,7 +233,7 @@ h1:focus, h2:focus { outline: none; } /* headings get focus only so screen reade
 .habits-head { margin-bottom: 20px; }
 .privacy { color: var(--slate); font-size: var(--step--1); }
 
-/* Hero power line: one pulse of "current" runs along the wire when the page loads. */
+/* Power line: a pulse of "current" runs along the wire every few seconds (off when reduced motion is on). */
 .power-line { display: block; width: 100%; height: 44px; margin: 4px 0 -8px; overflow: visible; }
 .power-line .wire,
 .power-line .pole { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
@@ -246,11 +246,12 @@ h1:focus, h2:focus { outline: none; } /* headings get focus only so screen reade
   stroke-dasharray: 8 120; /* one short dash; the gap is longer than the whole path (100), so no second dash ever shows */
   stroke-dashoffset: 10;
   filter: drop-shadow(0 0 5px rgba(255, 210, 63, 0.95));
-  animation: current-pulse 2.4s cubic-bezier(0.45, 0, 0.35, 1) 0.5s 1 both;
+  animation: current-pulse 4s cubic-bezier(0.45, 0, 0.35, 1) 0.5s infinite both;
 }
+/* Each 4 s loop: the pulse travels the wire (first 60%), then rests off the wire before the next one. */
 @keyframes current-pulse {
-  from { stroke-dashoffset: 10; }
-  to { stroke-dashoffset: -102; }
+  0% { stroke-dashoffset: 10; }
+  60%, 100% { stroke-dashoffset: -102; }
 }
 
 /* Progress: a real 3-step sequence, so it is numbered. */

@@ -797,7 +797,7 @@ if (form) {
 /* ================================================================== */
 
 // Draws a wire that sags between poles, sized to the screen in real pixels
-// (so the lines never stretch). CSS sends one pulse of "current" along it.
+// (so the lines never stretch). CSS sends a pulse of "current" along it every few seconds.
 const powerLine = document.getElementById("power-line");
 
 function drawPowerLine() {
