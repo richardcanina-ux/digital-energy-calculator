@@ -147,6 +147,18 @@
             </div>
           </fieldset>
 
+          <!-- A TV or monitor is plugged in, so its own electricity is added to video.
+               Phones, tablets and laptops are already counted under "Charging devices". -->
+          <fieldset class="field choice">
+            <legend><span data-i18n="screen.legend">Usually watch on</span> <span class="hint" data-i18n="screen.hint">phone, tablet and laptop charging is counted separately</span></legend>
+            <div class="segmented segmented-4">
+              <label><input type="radio" name="video_screen" value="phone" checked><span data-i18n="screen.phone">Phone or tablet</span></label>
+              <label><input type="radio" name="video_screen" value="laptop"><span data-i18n="screen.laptop">Laptop</span></label>
+              <label><input type="radio" name="video_screen" value="tv"><span data-i18n="screen.tv">TV</span></label>
+              <label><input type="radio" name="video_screen" value="monitor"><span data-i18n="screen.monitor">Monitor</span></label>
+            </div>
+          </fieldset>
+
           <div class="field">
             <label for="music_hours"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-music"></use></svg><span data-i18n="music.label">Music and podcasts</span> <span class="hint" data-i18n="music.hint">streamed, not downloaded</span></label>
             <div class="slider-row">
@@ -176,7 +188,7 @@
           </div>
 
           <fieldset class="field choice">
-            <legend data-i18n="platform.legend">Mostly play on</legend>
+            <legend><span data-i18n="platform.legend">Mostly play on</span> <span class="hint" data-i18n="platform.hint">a console includes the TV; a PC, the monitor</span></legend>
             <div class="segmented">
               <label><input type="radio" name="gaming_platform" value="phone" checked><span data-i18n="platform.phone">Phone</span></label>
               <label><input type="radio" name="gaming_platform" value="console"><span data-i18n="platform.console">Console</span></label>
@@ -324,7 +336,6 @@
             <h3 class="card-subtitle" data-i18n="results.where">Where it goes, in kWh a year</h3>
             <ul class="bars" id="bars"></ul>
 
-            <p class="card-note" data-i18n="card.screens">Doesn't include the electricity your TV or monitor uses itself.</p>
             <p class="card-foot" data-i18n="card.foot">Estimate by Energiae at Miami Dade College North</p>
           </div>
 

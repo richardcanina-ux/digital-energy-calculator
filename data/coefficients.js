@@ -24,12 +24,14 @@
  * To avoid counting the same energy twice, the energy that charges a phone,
  * laptop or tablet is counted ONLY in the "devices" category. The streaming,
  * music, social, calls and phone-gaming categories count only the hidden part:
- * network plus data centers.
+ * network plus data centers. A TV or computer monitor is plugged in, so it is NOT in
+ * "devices": its power is added to video (and to console or PC gaming), see section 4b.
  */
 
 const COEFFICIENTS = {
   // Bump this whenever a number changes, so submitted data can be grouped by model.
-  modelVersion: "2026-09-v1",
+  // v2 (2026-09-30): added the TV or monitor you watch or game on (section 4b).
+  modelVersion: "2026-09-v2",
 
   /* ------------------------------------------------------------------ */
   /* 1. NETWORK: the power model (applies to every hour spent online)    */
@@ -126,7 +128,7 @@ const COEFFICIENTS = {
     // Published range: 112 W (Xbox One) to about 220 W (Xbox Series X, demanding games).
     // Source: Hydro-Québec, "Your game console is power-hungry!" (accessed 2026).
     //   https://www.hydroquebec.com/residential/energy-wise/tips/electronics/game-consoles.html
-    // Confidence: MEDIUM. Console only; the TV is not counted (same as for video).
+    // Confidence: MEDIUM. Console only; the TV it plays on is added separately (section 4b).
     console: 180,
 
     // A typical gaming PC system is about 600 W nameplate, and real measured power is
@@ -137,8 +139,41 @@ const COEFFICIENTS = {
     //   https://link.springer.com/article/10.1007/s12053-015-9371-1
     //   Summary: https://sites.google.com/site/greeningthebeast/energy/taming-the-energy-use-of-gaming-computers
     // Confidence: MEDIUM-LOW. The figure is from 2016, and modern high-end GPUs can draw more. VERIFY.
+    // It is the computer itself (power-supply rating); the study counts displays separately,
+    // so the monitor is added from section 4b.
     pc: 300,
   },
+
+  /* ------------------------------------------------------------------ */
+  /* 4b. SCREENS you watch or play on (plugged in, so not in "devices")  */
+  /* ------------------------------------------------------------------ */
+  screenWatts: {
+    // Phones, tablets and laptops run on battery energy that is already counted in "devices".
+    phone: 0,
+    laptop: 0,
+
+    // TV: median on-mode power of the 179 ENERGY STAR certified consumer TVs = 102.4 W,
+    // as reported under the U.S. federal (DOE) test procedure. Median screen size: about 55 in.
+    // 10th to 90th percentile of the same models: 35.6 to 171.7 W.
+    // Source: U.S. EPA ENERGY STAR Certified Televisions dataset (queried 2026-09-30).
+    //   https://data.energystar.gov/Active-Specifications/ENERGY-STAR-Certified-Televisions/pd96-rr3d
+    // Size matters: in the same data, TVs under 40 in have a median of 28 W; 70 in and up, 166 W.
+    // Confidence: MEDIUM. It's a median of models, not weighted by sales, and certified models are
+    // more efficient than average.
+    tv: 102.4,
+
+    // Computer monitor: median on-mode power of the 1,592 ENERGY STAR certified monitors = 14.2 W.
+    // Median screen size: about 27 in. 10th to 90th percentile: 10.0 to 29.0 W.
+    // Source: U.S. EPA ENERGY STAR Certified Displays dataset, "Monitor" type (queried 2026-09-30).
+    //   https://data.energystar.gov/Active-Specifications/ENERGY-STAR-Certified-Displays/qbg3-d468
+    // Confidence: MEDIUM. Screen only: a desktop computer plugged into it is not counted.
+    monitor: 14.2,
+  },
+
+  // Which screen each gaming platform adds. An assumption, not a measurement: consoles are
+  // played on a TV, gaming PCs on one monitor, and phone games on the phone itself.
+  // Confidence: MEDIUM. Some console players use a monitor, and some PC gamers use two. VERIFY.
+  gamingScreen: { phone: "phone", console: "tv", pc: "monitor" },
 
   /* ------------------------------------------------------------------ */
   /* 5. AI                                                               */

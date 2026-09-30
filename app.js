@@ -57,14 +57,24 @@ function averageWatts(kwhPerYear) {
   return (kwhPerYear * 1000) / (HOURS_PER_DAY * DAYS_PER_YEAR);
 }
 
+// Wh for one hour of video: network + data centers, plus the TV or monitor if you watch on one.
+function videoWhPerHour(quality, screen) {
+  return onlineWhPerHour(gbPerHourToMbps(C.dataRates.videoGBPerHour[quality])) + C.screenWatts[screen];
+}
+
+// Wh for one hour of gaming: network, plus the console or PC, plus the screen it plays on.
+function gamingWhPerHour(platform) {
+  return onlineWhPerHour(C.dataRates.gamingMbps) + C.gamingDeviceWatts[platform] + C.screenWatts[C.gamingScreen[platform]];
+}
+
 // Takes the user's inputs and returns yearly kWh per category, the total, and CO2.
 function calculate(i) {
   const r = C.dataRates;
   const kwh = {
-    video: yearlyKWh(i.video_hours, onlineWhPerHour(gbPerHourToMbps(r.videoGBPerHour[i.video_quality]))),
+    video: yearlyKWh(i.video_hours, videoWhPerHour(i.video_quality, i.video_screen)),
     music: yearlyKWh(i.music_hours, onlineWhPerHour(r.musicMbps)),
     social: yearlyKWh(i.social_hours, onlineWhPerHour(gbPerHourToMbps(r.socialGBPerHour))),
-    gaming: yearlyKWh(i.gaming_hours, onlineWhPerHour(r.gamingMbps) + C.gamingDeviceWatts[i.gaming_platform]),
+    gaming: yearlyKWh(i.gaming_hours, gamingWhPerHour(i.gaming_platform)),
     calls: yearlyKWh(i.calls_hours, onlineWhPerHour(r.callsMbps)),
     ai: ((i.ai_prompts * C.ai.textPromptWh + i.ai_images * C.ai.imageWh) * DAYS_PER_YEAR) / 1000,
     cloud: i.cloud_gb * cloudKWhPerGBYear(),
@@ -106,7 +116,13 @@ function pledgeSavings(inputs, pledgeId) {
 /* ================================================================== */
 
 // The tip text is in data/strings.js as "tip.<category>". The AI tip includes a number from coefficients.js.
-function tipFor(category) {
+// Video gets a different tip when the TV or monitor uses more than the network and data centers.
+function tipFor(category, inputs) {
+  if (category === "video") {
+    const screen = C.screenWatts[inputs.video_screen];
+    const network = videoWhPerHour(inputs.video_quality, inputs.video_screen) - screen;
+    if (screen > network) return t("tip.videoScreen");
+  }
   const ratio = Math.round(C.ai.imageWh / C.ai.textPromptWh);
   return t(`tip.${category}`, { ratio });
 }
@@ -385,6 +401,7 @@ if (form) {
     return {
       video_hours: numberField("video_hours"),
       video_quality: form.elements.video_quality.value,
+      video_screen: form.elements.video_screen.value,
       music_hours: numberField("music_hours"),
       social_hours: numberField("social_hours"),
       gaming_hours: numberField("gaming_hours"),
@@ -463,7 +480,7 @@ if (form) {
   // sessionStorage stays on this device, in this tab only, and is gone when the tab closes.
   // Only the answers are kept (nothing personal). "Start over" and sending clear it.
   const SAVE_KEY = "energiae-answers";
-  const SAVED_FIELDS = ["video_hours", "video_quality", "music_hours", "social_hours", "gaming_hours", "gaming_platform",
+  const SAVED_FIELDS = ["video_hours", "video_quality", "video_screen", "music_hours", "social_hours", "gaming_hours", "gaming_platform",
     "calls_hours", "ai_prompts", "ai_images", "cloud_gb", "phones", "laptops", "tablets", "expectation", "pledge", "heard_from"];
 
   function saveAnswers() {
@@ -751,7 +768,7 @@ if (form) {
   function renderTips(sorted) {
     const top = sorted.filter((c) => c.value > 0).slice(0, 3);
     document.getElementById("tips-list").innerHTML = top
-      .map((c) => `<li><strong>${iconSvg(c.id)}${t(`cat.${c.id}`)}</strong> <span class="tip-kwh">${t("tips.kwh", { kwh: fmtSmall(c.value) })}</span><p>${tipFor(c.id)}</p></li>`)
+      .map((c) => `<li><strong>${iconSvg(c.id)}${t(`cat.${c.id}`)}</strong> <span class="tip-kwh">${t("tips.kwh", { kwh: fmtSmall(c.value) })}</span><p>${tipFor(c.id, lastResult.inputs)}</p></li>`)
       .join("");
     // With every habit at zero there is nothing to cut, so hide the tips instead of showing an empty list.
     document.getElementById("tips").hidden = top.length === 0;
@@ -942,10 +959,9 @@ if (form) {
       fillBox(pad, y + 44, Math.max(10, ((W - 2 * pad) * c.value) / max), 10, 5, volt);
     });
 
-    // What's not counted, who made it, and where the methods are
-    text(t("card.screens"), pad, 1222, { size: 24, fill: soft });
-    text(`${t("card.foot")} · ${t("share.model", { version: C.modelVersion })}`, pad, 1260, { size: 24, fill: soft });
-    text(t("share.how", { url: siteAddress("about.html") }), pad, 1300, { size: 26, weight: 700, fill: volt });
+    // Who made it, and where the methods are
+    text(`${t("card.foot")} · ${t("share.model", { version: C.modelVersion })}`, pad, 1250, { size: 24, fill: soft });
+    text(t("share.how", { url: siteAddress("about.html") }), pad, 1292, { size: 26, weight: 700, fill: volt });
     return canvas;
   }
 
@@ -1270,9 +1286,13 @@ const CALCULATED = {
   whMusic: () => onlineWhPerHour(C.dataRates.musicMbps),
   whSocial: () => onlineWhPerHour(gbPerHourToMbps(C.dataRates.socialGBPerHour)),
   whCalls: () => onlineWhPerHour(C.dataRates.callsMbps),
-  whGamingPhone: () => onlineWhPerHour(C.dataRates.gamingMbps) + C.gamingDeviceWatts.phone,
-  whGamingConsole: () => onlineWhPerHour(C.dataRates.gamingMbps) + C.gamingDeviceWatts.console,
-  whGamingPC: () => onlineWhPerHour(C.dataRates.gamingMbps) + C.gamingDeviceWatts.pc,
+  whHDTV: () => videoWhPerHour("HD", "tv"),
+  whHDMonitor: () => videoWhPerHour("HD", "monitor"),
+  tvVsNetworkHD: () => C.screenWatts.tv / videoWhPerHour("HD", "phone"),
+  whGaming: () => onlineWhPerHour(C.dataRates.gamingMbps),
+  whGamingPhone: () => gamingWhPerHour("phone"),
+  whGamingConsole: () => gamingWhPerHour("console"),
+  whGamingPC: () => gamingWhPerHour("pc"),
   oldMethodHD: () => C.dataRates.videoGBPerHour.HD * C.network.oldMethodKWhPerGB * 1000, // the method we do NOT use
   cloudPerGB: () => cloudKWhPerGBYear(),
   phonePerYear: () => C.devices.phoneKWhPerCharge * DAYS_PER_YEAR,

@@ -367,6 +367,11 @@ input[type="range"]::-moz-range-thumb {
 }
 .segmented input:checked + span { background: var(--grid); border-color: var(--grid); color: var(--white); }
 .segmented input:focus-visible + span { outline: 3px solid var(--grid); outline-offset: 3px; }
+/* Four longer choices (where you watch): two per row on phones, one row on wider screens */
+.segmented-4 { flex-wrap: wrap; }
+.segmented-4 label { flex: 1 1 calc(50% - 3px); }
+.segmented-4 span { padding: 4px 8px; text-align: center; line-height: 1.2; }
+@media (min-width: 600px) { .segmented-4 label { flex-basis: 0; } }
 
 /* Number steppers */
 .stepper { display: inline-flex; align-items: stretch; }
@@ -589,7 +594,6 @@ html:has(#habit-live:not([hidden])) { scroll-padding-bottom: 170px; } /* the bar
   transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) calc(1.1s + var(--i, 0) * 90ms); /* biggest bar first */
 }
 .bar-label .icon { width: 1.05em; height: 1.05em; margin-right: 0.35em; vertical-align: -0.2em; color: var(--volt); }
-.card-note { margin: 0 0 6px; font-size: 0.75rem; color: rgba(255, 255, 255, 0.85); }
 .card-foot { margin: 0; font-size: 0.75rem; color: rgba(255, 255, 255, 0.8); }
 
 /* Share / download the card as an image */

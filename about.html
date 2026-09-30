@@ -61,6 +61,7 @@
     <p>You might have seen headlines saying one hour of streaming uses as much energy as boiling several kettles. Those numbers multiply the data you download by an average "energy per gigabyte." With that method, one hour of HD video would use about <span data-calc="oldMethodHD" data-digits="0"></span> Wh.</p>
     <p>The International Energy Agency and the Carbon Trust showed that method overstates the network's share. Internet equipment uses most of its power just by being switched on, whether you stream or not. More data adds only a little. So we use their <strong>power model</strong>: every hour you spend online gets a fair share of the network's always-on power, plus a small extra for the data you move. With it, an hour of HD video comes to about <span data-calc="whHD" data-digits="1"></span> Wh.</p>
     <p>That's why changing 4K to HD saves very little in our results, while spending an hour less online saves much more.</p>
+    <p>The screen matters too. A typical TV uses about <span data-c="screenWatts.tv"></span> W while it's on, about <span data-calc="tvVsNetworkHD" data-digits="0"></span> times the network and data centers behind an HD show. So if you watch on a TV, the TV is the biggest part of your video total.</p>
 
     <h2>Formulas</h2>
     <p>"Online Wh per hour" is the network and data-center energy for one hour online:</p>
@@ -71,10 +72,12 @@
 
     <h3>Video streaming</h3>
     <div class="formula">
-      kWh/year = hours/day × 365 × online Wh per hour ÷ 1,000<br>
-      SD: <span data-c="dataRates.videoGBPerHour.SD"></span> GB/h = <span data-calc="mbpsSD" data-digits="2"></span> Mbps → <span data-calc="whSD" data-digits="2"></span> Wh per hour<br>
-      HD: <span data-c="dataRates.videoGBPerHour.HD"></span> GB/h = <span data-calc="mbpsHD" data-digits="2"></span> Mbps → <span data-calc="whHD" data-digits="2"></span> Wh per hour<br>
-      4K: <span data-c="dataRates.videoGBPerHour.4K"></span> GB/h = <span data-calc="mbps4K" data-digits="2"></span> Mbps → <span data-calc="wh4K" data-digits="2"></span> Wh per hour
+      kWh/year = hours/day × 365 × (online Wh per hour + screen watts) ÷ 1,000<br>
+      SD: <span data-c="dataRates.videoGBPerHour.SD"></span> GB/h = <span data-calc="mbpsSD" data-digits="2"></span> Mbps → <span data-calc="whSD" data-digits="2"></span> Wh per hour online<br>
+      HD: <span data-c="dataRates.videoGBPerHour.HD"></span> GB/h = <span data-calc="mbpsHD" data-digits="2"></span> Mbps → <span data-calc="whHD" data-digits="2"></span> Wh per hour online<br>
+      4K: <span data-c="dataRates.videoGBPerHour.4K"></span> GB/h = <span data-calc="mbps4K" data-digits="2"></span> Mbps → <span data-calc="wh4K" data-digits="2"></span> Wh per hour online<br>
+      Screen: phone, tablet or laptop <span data-c="screenWatts.phone"></span> W (their battery is counted under charging), TV <span data-c="screenWatts.tv"></span> W, monitor <span data-c="screenWatts.monitor"></span> W<br>
+      Example: HD on a TV → <span data-calc="whHDTV" data-digits="2"></span> Wh per hour; on a monitor → <span data-calc="whHDMonitor" data-digits="2"></span> Wh per hour
     </div>
 
     <h3>Music and podcasts</h3>
@@ -85,10 +88,11 @@
 
     <h3>Gaming</h3>
     <div class="formula">
-      kWh/year = hours/day × 365 × (online Wh per hour + device watts) ÷ 1,000<br>
+      kWh/year = hours/day × 365 × (online Wh per hour + device watts + screen watts) ÷ 1,000<br>
+      Online share for gaming: <span data-calc="whGaming" data-digits="2"></span> Wh per hour<br>
       Phone: <span data-c="gamingDeviceWatts.phone"></span> W extra (battery counted in devices) → <span data-calc="whGamingPhone" data-digits="2"></span> Wh per hour<br>
-      Console: <span data-c="gamingDeviceWatts.console"></span> W → <span data-calc="whGamingConsole" data-digits="2"></span> Wh per hour<br>
-      PC: <span data-c="gamingDeviceWatts.pc"></span> W → <span data-calc="whGamingPC" data-digits="2"></span> Wh per hour
+      Console: <span data-c="gamingDeviceWatts.console"></span> W + TV <span data-c="screenWatts.tv"></span> W → <span data-calc="whGamingConsole" data-digits="2"></span> Wh per hour<br>
+      PC: <span data-c="gamingDeviceWatts.pc"></span> W + monitor <span data-c="screenWatts.monitor"></span> W → <span data-calc="whGamingPC" data-digits="2"></span> Wh per hour
     </div>
 
     <h3>Video calls</h3>
@@ -121,8 +125,8 @@
 
     <h2>Assumptions and limits</h2>
     <ul>
-      <li><strong>No double counting.</strong> The electricity that charges your phone, laptop and tablet is counted only under "Charging devices." Streaming, music, social media, calls and phone gaming count only the network and data centers.</li>
-      <li><strong>Screens are not counted</strong> for TVs and monitors, so video and console totals are on the low side.</li>
+      <li><strong>No double counting.</strong> The electricity that charges your phone, laptop and tablet is counted only under "Charging devices." Streaming, music, social media, calls and phone gaming count only the network and data centers. A TV or monitor is plugged in, so it's never in "Charging devices"; its power is added to video when you watch on it.</li>
+      <li><strong>TVs and monitors are a typical certified model:</strong> the median of the ENERGY STAR certified models (about 55-inch TVs and 27-inch monitors). A bigger screen uses more, and a smaller one less. For gaming we assume a console plays on a TV and a PC on one monitor. The desktop computer a monitor is plugged into is not counted.</li>
       <li><strong>Home Wi-Fi is assumed.</strong> Mobile data networks use different numbers, and we don't model them separately.</li>
       <li><strong>Data-center energy for video</strong> is also used for music, social media, calls and gaming, because we found no separate published figure. Audio probably needs less.</li>
       <li><strong>Florida's grid is used for all CO₂,</strong> even though many data centers that serve you are in other states. Grid losses (about <span data-c="gridLossPct" data-digits="0"></span>%) are not added.</li>
@@ -176,6 +180,7 @@
           <tr><td>Cloud storage: drive power, PUE; U.S. data-center use</td><td><a href="https://eta-publications.lbl.gov/sites/default/files/2024-12/lbnl-2024-united-states-data-center-energy-usage-report_1.pdf">Lawrence Berkeley National Laboratory, 2024 U.S. Data Center Energy Usage Report</a></td><td>High (parts), Low (final cloud number)</td></tr>
           <tr><td>Cloud storage: typical drive size</td><td><a href="https://www.backblaze.com/blog/backblaze-drive-stats-for-2025/">Backblaze, Drive Stats for 2025 (2026)</a></td><td>Medium</td></tr>
           <tr><td>Phone charge; phone comparison; charger tip</td><td><a href="https://www.epa.gov/energy/greenhouse-gas-equivalencies-calculator-calculations-and-references">U.S. EPA, Greenhouse Gas Equivalencies Calculator references (2026)</a></td><td>High</td></tr>
+          <tr><td>TV and monitor power while on</td><td><a href="https://data.energystar.gov/Active-Specifications/ENERGY-STAR-Certified-Televisions/pd96-rr3d">U.S. EPA ENERGY STAR Certified Televisions dataset</a>; <a href="https://data.energystar.gov/Active-Specifications/ENERGY-STAR-Certified-Displays/qbg3-d468">ENERGY STAR Certified Displays dataset</a> (medians of certified models, queried Sept. 2026)</td><td>Medium</td></tr>
           <tr><td>Laptop and tablet yearly energy</td><td><a href="https://data.energystar.gov/Active-Specifications/ENERGY-STAR-Certified-Computers-V9-0/rxdj-2c88">U.S. EPA ENERGY STAR Certified Computers V9.0 dataset</a> (median of certified models, queried Sept. 2026)</td><td>Medium-high</td></tr>
           <tr><td>Florida CO₂ rate, electricity mix and grid losses</td><td><a href="https://www.epa.gov/egrid/summary-data">U.S. EPA eGRID2023 (2025)</a></td><td>High</td></tr>
           <tr><td>Average Florida home electricity</td><td><a href="https://www.eia.gov/electricity/sales_revenue_price/">U.S. EIA, Electric Sales, Revenue, and Average Price, Table 5A (2024 data)</a></td><td>High</td></tr>
