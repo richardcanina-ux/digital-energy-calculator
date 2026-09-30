@@ -489,7 +489,10 @@ if (form) {
   }
 
   // Picks up where this tab left off, e.g. after reading about.html and tapping "Back to the calculator".
+  // The Energiae logo links to index.html#home: answers come back, but the welcome screen shows.
   function restoreAnswers() {
+    const goHome = location.hash === "#home";
+    if (goHome) history.replaceState(history.state, "", location.pathname + location.search); // tidy the address
     let saved = null;
     try {
       saved = JSON.parse(sessionStorage.getItem(SAVE_KEY));
@@ -504,7 +507,7 @@ if (form) {
     form.querySelectorAll('input[type="range"]').forEach(updateSlider);
     updateOverlapNote();
     editBaseline = typeof saved.baseline === "number" ? saved.baseline : null;
-    const step = ["habits", "results", "pledge"].includes(saved.step) ? saved.step : "welcome";
+    const step = !goHome && ["habits", "results", "pledge"].includes(saved.step) ? saved.step : "welcome";
     showHabitPage(step === "habits" ? Number(saved.page) || 0 : 0, { focus: false });
     updateLiveTotal();
     if (step === "results" || step === "pledge") renderResults();
@@ -1166,6 +1169,14 @@ if (form) {
     showHabitPage(0, { focus: false });
     showStep("welcome");
     clearAnswers();
+  });
+
+  // The Energiae logo shows the welcome screen without reloading. Answers are kept (like Back from the first
+  // section); after sending, it starts fresh instead, like "Start over".
+  document.getElementById("home-link").addEventListener("click", (event) => {
+    event.preventDefault();
+    if (!steps.thanks.hidden) document.getElementById("restart-btn").click();
+    else showStep("welcome");
   });
 
   // When the language changes, redraw every piece of text that JavaScript built (no animations replay).
