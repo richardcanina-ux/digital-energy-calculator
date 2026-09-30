@@ -10,7 +10,7 @@ Team: Richard Canina Miranda (Leader + Website Builder), Isaac Suarez (Co-leader
 
 | File | What it does |
 |---|---|
-| `index.html` | The calculator: welcome → habits → results → pledge → thank you, all on one page ("Start over" returns to the welcome screen) |
+| `index.html` | The calculator: welcome → habits (4 short sections) → results → pledge → thank you, all on one page ("Start over" returns to the welcome screen) |
 | `about.html` | Every formula, assumption and source, plus "Why this matters" |
 | `styles.css` | All styling (mobile-first) |
 | `app.js` | Formulas, results, tips, pledges, form submission; also fills numbers on `about.html` |

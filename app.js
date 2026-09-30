@@ -395,6 +395,49 @@ if (form) {
     };
   }
 
+  /* ---------- step 1 is split into 4 short sections ---------- */
+
+  const habitPages = [...steps.habits.querySelectorAll(".habit-page")];
+  const habitDots = [...document.querySelectorAll(".habit-dot")];
+  const habitNext = document.getElementById("habit-next");
+  const habitResults = document.getElementById("habit-results");
+  let habitPage = 0; // 0 = first section
+
+  const sectionName = (k) => habitPages[k].querySelector("legend").textContent;
+
+  // Text that depends on the current section (also redrawn when the language changes).
+  function updateHabitNav() {
+    const total = habitPages.length;
+    const last = habitPage === total - 1;
+    habitNext.hidden = last;
+    habitResults.hidden = !last; // "See my results" only on the last section
+    if (!last) document.getElementById("habit-next-label").textContent = t("habits.nextTo", { section: sectionName(habitPage + 1) });
+    document.getElementById("habit-count").textContent = t("habits.count", { n: habitPage + 1, total });
+    habitDots.forEach((dot, k) => {
+      dot.setAttribute("aria-label", t("habits.dotLabel", { section: sectionName(k), n: k + 1, total }));
+      if (k === habitPage) dot.setAttribute("aria-current", "step");
+      else dot.removeAttribute("aria-current");
+    });
+  }
+
+  // Shows one section. focus = true moves to the top and puts keyboard focus on the new section.
+  function showHabitPage(k, { focus = true } = {}) {
+    habitPage = Math.max(0, Math.min(habitPages.length - 1, k));
+    habitPages.forEach((page, i) => (page.hidden = i !== habitPage));
+    updateHabitNav();
+    if (focus) {
+      window.scrollTo(0, 0);
+      habitPages[habitPage].focus({ preventScroll: true }); // screen readers read the section's name
+    }
+  }
+
+  habitNext.addEventListener("click", () => showHabitPage(habitPage + 1));
+  document.getElementById("habit-back").addEventListener("click", () => {
+    if (habitPage === 0) showStep("welcome"); // Back from the first section returns to the welcome screen
+    else showHabitPage(habitPage - 1);
+  });
+  habitDots.forEach((dot, k) => dot.addEventListener("click", () => showHabitPage(k)));
+
   /* ---------- step 1 controls: sliders and steppers ---------- */
 
   function updateSlider(slider) {
@@ -461,6 +504,7 @@ if (form) {
   document.querySelectorAll("[data-go]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const target = btn.dataset.go;
+      if (target === "habits") showHabitPage(0, { focus: false });
       if (target === "results") {
         const unchanged = lastResult && JSON.stringify(readInputs()) === JSON.stringify(lastResult.inputs);
         if (unchanged) document.getElementById("result-card").classList.add("is-settled");
@@ -774,12 +818,14 @@ if (form) {
     if (feedbackUI) feedbackUI.reset();
     form.querySelectorAll('input[type="range"]').forEach(updateSlider);
     updateOverlapNote();
+    showHabitPage(0, { focus: false });
     showStep("welcome");
   });
 
   // When the language changes, redraw every piece of text that JavaScript built (no animations replay).
   languageHooks.push(() => {
     form.querySelectorAll('input[type="range"]').forEach(updateSlider);
+    updateHabitNav();
     renderGridMix();
     const errorBox = document.getElementById("form-error");
     if (!errorBox.hidden && errorBox.dataset.key) errorBox.textContent = t(errorBox.dataset.key);

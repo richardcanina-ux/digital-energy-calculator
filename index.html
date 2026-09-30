@@ -115,7 +115,7 @@
           <p class="lede" data-i18n="habits.lede">Enter a normal day. Rough guesses are fine.</p>
         </div>
 
-        <fieldset class="group">
+        <fieldset class="group habit-page" data-page="1" tabindex="-1">
           <legend data-i18n="group.watch">Watch and listen</legend>
 
           <div class="field">
@@ -144,7 +144,7 @@
           </div>
         </fieldset>
 
-        <fieldset class="group">
+        <fieldset class="group habit-page" data-page="2" tabindex="-1" hidden>
           <legend data-i18n="group.scroll">Scroll and play</legend>
 
           <div class="field">
@@ -173,7 +173,7 @@
           </fieldset>
         </fieldset>
 
-        <fieldset class="group">
+        <fieldset class="group habit-page" data-page="3" tabindex="-1" hidden>
           <legend data-i18n="group.talk">Talk and ask</legend>
 
           <div class="field">
@@ -203,7 +203,7 @@
           </div>
         </fieldset>
 
-        <fieldset class="group">
+        <fieldset class="group habit-page" data-page="4" tabindex="-1" hidden>
           <legend data-i18n="group.store">Store and charge</legend>
 
           <div class="field">
@@ -246,8 +246,24 @@
 
         <p class="overlap-note" id="overlap-note" data-i18n="habits.overlap" hidden>That adds up to more than 24 hours. That's fine if you do some things at the same time.</p>
 
-        <div class="actions">
-          <button type="button" class="btn btn-primary" data-go="results" data-i18n="habits.next">See my results</button>
+        <!-- Section navigation: one group of questions at a time (app.js shows/hides the fieldsets above).
+             The dots and the Back/Next buttons are pinned together at the bottom of the screen. -->
+        <div class="habit-footer">
+        <div class="habit-nav">
+          <div class="habit-dots" id="habit-dots" role="group" aria-label="Habit sections" data-i18n-aria="habits.dotsAria">
+            <button type="button" class="habit-dot" data-page="1"></button>
+            <button type="button" class="habit-dot" data-page="2"></button>
+            <button type="button" class="habit-dot" data-page="3"></button>
+            <button type="button" class="habit-dot" data-page="4"></button>
+          </div>
+          <p class="habit-count" id="habit-count">Section 1 of 4</p>
+        </div>
+
+        <div class="actions habit-actions">
+          <button type="button" class="btn btn-quiet" id="habit-back" data-i18n="habits.back">Back</button>
+          <button type="button" class="btn btn-primary" id="habit-next"><span id="habit-next-label">Next: Scroll and play</span><svg class="btn-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          <button type="button" class="btn btn-primary" id="habit-results" data-go="results" data-i18n="habits.next" hidden>See my results</button>
+        </div>
         </div>
       </section>
 

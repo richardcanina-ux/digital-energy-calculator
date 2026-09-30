@@ -408,6 +408,52 @@ input[type="range"]::-moz-range-thumb {
 
 .overlap-note { color: var(--slate); font-size: var(--step--1); }
 
+/* ---------- Step 1 in 4 sections ---------- */
+#step-habits { max-width: 720px; margin: 0 auto; } /* one section at a time: a centered, comfortable reading width on desktop */
+.habit-page { margin-bottom: 8px; }
+.habit-page:focus { outline: none; } /* focus is moved here only so screen readers announce the section */
+.habit-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.habit-dots { display: flex; gap: 2px; }
+.habit-dot {
+  width: 36px;
+  height: 44px; /* tap area; the visible dot is drawn below */
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+.habit-dot::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: var(--mist);
+  border: 2px solid var(--grid);
+  transition: width 0.2s;
+}
+.habit-dot[aria-current]::after { width: 26px; background: var(--grid); }
+.habit-count { margin: 0; color: var(--slate); font-size: var(--step--1); font-weight: 600; }
+/* Dots + Back/Next are pinned together to the bottom of the screen, so they're always in reach and never half-covered */
+.habit-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  margin-top: 8px;
+  padding: 4px 0 max(12px, env(safe-area-inset-bottom));
+  background: var(--paper);
+  box-shadow: 0 -1px 0 var(--mist);
+}
+.actions.habit-actions { flex-wrap: nowrap; margin: 4px 0 0; } /* Back and Next share one row */
+/* WCAG 2.4.11: keep keyboard-focused fields from hiding behind the pinned bar */
+html:has(#step-habits:not([hidden])) { scroll-padding-bottom: 140px; }
+.habit-actions .btn-quiet { flex: 0 0 auto; }
+.habit-actions .btn-primary { flex: 1 1 auto; min-width: 0; text-align: center; }
+
 /* ---------- Buttons ---------- */
 .actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0 16px; }
 .btn {
@@ -676,11 +722,6 @@ blockquote { margin: 0 0 1em; padding: 4px 0 4px 16px; border-left: 5px solid va
   }
   .welcome > .lede { font-size: var(--step-1); }
   .welcome-art { align-self: center; max-width: none; margin: 0; }
-  #step-habits { display: grid; grid-template-columns: 1fr 1fr; column-gap: 56px; }
-  #step-habits[hidden] { display: none; }
-  #step-habits > .habits-head,
-  #step-habits > .overlap-note,
-  #step-habits > .actions { grid-column: 1 / -1; } /* full width, above and below the two columns */
 
   .results-layout { display: grid; grid-template-columns: 460px 1fr; gap: 56px; align-items: start; }
   .results-side { margin-top: 0; }
@@ -696,6 +737,7 @@ blockquote { margin: 0 0 1em; padding: 4px 0 4px 16px; border-left: 5px solid va
 
 /* ---------- Motion preferences ---------- */
 @media (prefers-reduced-motion: reduce) {
+  .habit-dot::after { transition: none; }
   .digit-strip,
   .card.is-revealed .bar-fill { transition: none; }
   .card.is-revealed .disk-spin { animation: none; }

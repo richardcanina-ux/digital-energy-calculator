@@ -96,6 +96,11 @@ const STRINGS = {
     "unit.hPerDay": "h/day",
     "habits.overlap": "That adds up to more than 24 hours. That's fine if you do some things at the same time.",
     "habits.next": "See my results",
+    "habits.back": "Back",
+    "habits.nextTo": "Next: {section}",
+    "habits.count": "Section {n} of {total}",
+    "habits.dotsAria": "Habit sections",
+    "habits.dotLabel": "{section}, section {n} of {total}",
 
     /* ---------- step 2: results ---------- */
     "results.title": "My digital year",
@@ -293,6 +298,11 @@ const STRINGS = {
     "unit.hPerDay": "h/día",
     "habits.overlap": "Eso suma más de 24 horas. No pasa nada si haces algunas cosas al mismo tiempo.",
     "habits.next": "Ver mis resultados",
+    "habits.back": "Atrás",
+    "habits.nextTo": "Siguiente: {section}",
+    "habits.count": "Sección {n} de {total}",
+    "habits.dotsAria": "Secciones de hábitos",
+    "habits.dotLabel": "{section}, sección {n} de {total}",
 
     /* ---------- paso 2: resultados ---------- */
     "results.title": "Mi año digital",
