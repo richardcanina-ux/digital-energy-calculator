@@ -110,6 +110,7 @@ const STRINGS = {
     "habits.dotsAria": "Habit sections",
     "habits.dotLabel": "{section}, section {n} of {total}",
     "habits.live": "Your total now: {kwh} kWh a year (was {was})",
+    "habits.unchanged": "You haven't changed any answers yet. Are these really your habits? If so, tap See my results again.",
 
     /* ---------- step 2: results ---------- */
     "results.title": "My digital year",
@@ -329,6 +330,7 @@ const STRINGS = {
     "habits.dotsAria": "Secciones de hábitos",
     "habits.dotLabel": "{section}, sección {n} de {total}",
     "habits.live": "Tu total ahora: {kwh} kWh al año (antes: {was})",
+    "habits.unchanged": "Todavía no has cambiado ninguna respuesta. ¿De verdad son tus hábitos? Si es así, toca Ver mis resultados otra vez.",
 
     /* ---------- paso 2: resultados ---------- */
     "results.title": "Mi año digital",

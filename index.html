@@ -275,6 +275,8 @@
         <div class="habit-footer">
         <!-- Only when coming back from the results ("Edit my habits"), so it can't spoil the first reveal or the "expected" question. -->
         <p class="habit-live" id="habit-live" aria-live="polite" hidden></p>
+        <!-- Shown once if someone taps "See my results" without changing any answer; a second tap continues. -->
+        <p class="habit-unchanged" id="habit-unchanged" role="status" hidden></p>
         <div class="habit-nav">
           <div class="habit-dots" id="habit-dots" role="group" aria-label="Habit sections" data-i18n-aria="habits.dotsAria">
             <button type="button" class="habit-dot" data-page="1"></button>
@@ -430,6 +432,7 @@
         <input type="hidden" name="kwh_devices">
         <input type="hidden" name="top_category">
         <input type="hidden" name="pledge_kwh_saved">
+        <input type="hidden" name="habits_changed">
         <input type="hidden" name="model_version">
         <input type="hidden" name="language">
 

@@ -61,6 +61,7 @@ Each row is one completed calculator. Columns:
 | `expectation` | RQ5: `higher`, `about-right`, `lower` or `no-idea` compared to what they expected |
 | `pledge`, `pledge_kwh_saved` | The habit they chose and its yearly kWh saving. `pledge` is `none` and `pledge_kwh_saved` is 0 when none of the pledges fit their habits (for example, only device charging) |
 | `heard_from` | Where they heard about the calculator |
+| `habits_changed` | How many of the 14 habit answers they changed from where the form starts (0 to 14). **0 means they clicked straight through**, so their numbers are just the starting values: leave those rows out of the analysis. (Before their first results, anyone who hasn't changed anything sees a note asking "Are these really your habits?" and has to tap again to continue.) Empty in rows sent before this column was added |
 | `model_version` | Which version of `coefficients.js` produced the numbers. `2026-09-v1` didn't count TVs and monitors; `2026-09-v2` adds the TV or monitor for video, a TV for console gaming and a monitor for PC gaming, so compare the two groups carefully |
 | `language` | `en` or `es`: the language they used |
 

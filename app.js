@@ -217,15 +217,46 @@ function setLanguage(next) {
   applyLanguage();
 }
 
-// Checks one required choice and, if it's missing, shows the message in the page's language.
-// (The browser's own message would follow the phone's language instead.)
+// Checks one required choice (a group of radio buttons or a list). If it's missing, a short note appears
+// right under the question, in the page's language, and the question scrolls into view.
+// (The browser's own pop-up is easy to miss: it closes as the page scrolls, and some phones never show it.)
 function checkChoice(field) {
-  field.setCustomValidity(""); // clear an earlier message first, so the check below is honest
+  const box = field.closest("fieldset") || field.closest(".field");
+  const inputs = box.querySelectorAll(`[name="${field.name}"]`);
+  let note = box.querySelector(":scope > .choice-error");
+  if (!note) {
+    note = document.createElement("p");
+    note.className = "field-error choice-error";
+    note.id = `${field.name}-error`;
+    note.hidden = true;
+    const legend = box.querySelector(":scope > legend");
+    if (legend) legend.after(note);
+    else box.append(note);
+    inputs.forEach((el) => el.setAttribute("aria-describedby", note.id));
+    box.addEventListener("change", () => clearChoiceErrors(box)); // gone as soon as they choose
+  }
   if (field.checkValidity()) return true;
-  field.setCustomValidity(t(field.tagName === "SELECT" ? "valid.pickList" : "valid.pickOne"));
-  field.reportValidity();
+  note.dataset.key = field.tagName === "SELECT" ? "valid.pickList" : "valid.pickOne"; // kept so it can be re-translated
+  note.textContent = t(note.dataset.key);
+  note.hidden = false;
+  inputs.forEach((el) => el.setAttribute("aria-invalid", "true"));
+  box.scrollIntoView({ block: "start" }); // scroll-padding keeps it clear of the sticky meter on the pledge step
+  field.focus({ preventScroll: true });
   return false;
 }
+
+// Hides the "choose one" notes inside root (after choosing, and when a form is reset).
+function clearChoiceErrors(root) {
+  root.querySelectorAll(".choice-error").forEach((note) => {
+    note.hidden = true;
+    note.textContent = "";
+  });
+  root.querySelectorAll('[aria-invalid="true"]:not([type="number"])').forEach((el) => el.removeAttribute("aria-invalid"));
+}
+
+languageHooks.push(() => {
+  document.querySelectorAll(".choice-error:not([hidden])").forEach((note) => (note.textContent = t(note.dataset.key)));
+});
 
 // Category icon from the icon set at the top of index.html.
 function iconSvg(category) {
@@ -317,6 +348,7 @@ const feedbackUI = (() => {
   // A clean, hidden form for the next person (phones get passed around at tabling).
   function reset() {
     fbForm.reset();
+    clearChoiceErrors(fbForm);
     updateCount();
     fbForm.hidden = false;
     done.hidden = true;
@@ -475,13 +507,42 @@ if (form) {
     liveTotal.textContent = t("habits.live", { kwh: fmtKWh(calculate(readInputs()).total), was: fmtKWh(editBaseline) });
   }
 
+  /* ---------- did they change anything? (to spot people who click straight through) ---------- */
+
+  // The habits start filled in, so clicking straight through gives a real-looking total.
+  // habits_changed (sent with the form) counts how many of the 14 habit answers differ from where they started;
+  // 0 means they didn't change anything, so those rows can be left out of the analysis.
+  const unchangedNote = document.getElementById("habit-unchanged");
+  let unchangedWarned = false; // the gentle note shows once; tapping See my results again continues
+
+  // The starting value from the HTML (not the current value), so a restored or edited form still compares correctly.
+  function startValue(name) {
+    const el = form.elements[name];
+    if (el instanceof RadioNodeList) return [...el].find((radio) => radio.defaultChecked)?.value ?? "";
+    return el.defaultValue;
+  }
+
+  function habitsChanged() {
+    return HABIT_FIELDS.filter((name) => {
+      const now = form.elements[name].value;
+      const start = startValue(name);
+      const same = now === start || (now !== "" && start !== "" && Number(now) === Number(start)); // "05" = "5"
+      return !same;
+    }).length;
+  }
+
+  function hideUnchangedNote() {
+    unchangedNote.hidden = true;
+  }
+
   /* ---------- keep answers while visiting about.html (this browser tab only) ---------- */
 
   // sessionStorage stays on this device, in this tab only, and is gone when the tab closes.
   // Only the answers are kept (nothing personal). "Start over" and sending clear it.
   const SAVE_KEY = "energiae-answers";
-  const SAVED_FIELDS = ["video_hours", "video_quality", "video_screen", "music_hours", "social_hours", "gaming_hours", "gaming_platform",
-    "calls_hours", "ai_prompts", "ai_images", "cloud_gb", "phones", "laptops", "tablets", "expectation", "pledge", "heard_from"];
+  const HABIT_FIELDS = ["video_hours", "video_quality", "video_screen", "music_hours", "social_hours", "gaming_hours", "gaming_platform",
+    "calls_hours", "ai_prompts", "ai_images", "cloud_gb", "phones", "laptops", "tablets"];
+  const SAVED_FIELDS = [...HABIT_FIELDS, "expectation", "pledge", "heard_from"];
 
   function saveAnswers() {
     const step = Object.keys(steps).find((key) => !steps[key].hidden);
@@ -619,6 +680,7 @@ if (form) {
   // Any change to an answer: update the running total and remember the answers for this tab.
   form.addEventListener("input", () => {
     updateLiveTotal();
+    hideUnchangedNote(); // they're changing something, so the "nothing changed" note no longer fits
     saveAnswers();
   });
   form.addEventListener("change", saveAnswers);
@@ -639,7 +701,7 @@ if (form) {
     saveAnswers();
   }
 
-  // Checks the required fields inside one step; shows the browser's message on the first problem.
+  // Checks the required fields inside one step; shows a note under the first question that's missing an answer.
   function stepIsValid(section) {
     const fields = section.querySelectorAll("input[required], select[required]");
     for (const field of fields) {
@@ -660,6 +722,14 @@ if (form) {
       }
       // "See my results": every typed number must be valid first.
       if (target === "results" && !steps.habits.hidden && !sectionsAreValid(habitPages)) return;
+      // First time through with nothing changed: a gentle note first; tapping again continues.
+      if (target === "results" && !steps.habits.hidden && editBaseline === null && !unchangedWarned && habitsChanged() === 0) {
+        unchangedWarned = true;
+        unchangedNote.textContent = t("habits.unchanged");
+        unchangedNote.hidden = false;
+        return;
+      }
+      if (target === "results") hideUnchangedNote();
       if (target === "results") {
         const unchanged = lastResult && JSON.stringify(readInputs()) === JSON.stringify(lastResult.inputs);
         if (unchanged) document.getElementById("result-card").classList.add("is-settled");
@@ -1096,6 +1166,7 @@ if (form) {
     const top = CATEGORIES.reduce((best, c) => (result.kwh[c.id] > result.kwh[best.id] ? c : best));
     set("top_category", result.kwh[top.id] > 0 ? top.id : "none"); // "none" when every habit is 0
     set("pledge_kwh_saved", round2(pledgeSavings(inputs, pledgeId)));
+    set("habits_changed", habitsChanged()); // 0 = clicked straight through without changing any habit
     set("model_version", C.modelVersion);
     set("language", lang); // "en" or "es": which language they used
   }
@@ -1180,6 +1251,9 @@ if (form) {
     form.querySelectorAll('input[type="range"]').forEach(updateSlider);
     updateOverlapNote();
     numberInputs.forEach(checkNumber); // the reset values are valid, so this clears any error lines
+    clearChoiceErrors(form);
+    unchangedWarned = false;
+    hideUnchangedNote();
     editBaseline = null;
     updateLiveTotal();
     showHabitPage(0, { focus: false });
@@ -1200,6 +1274,7 @@ if (form) {
     form.querySelectorAll('input[type="range"]').forEach(updateSlider);
     updateHabitNav();
     updateLiveTotal();
+    if (!unchangedNote.hidden) unchangedNote.textContent = t("habits.unchanged");
     numberInputs.forEach((input) => {
       if (input.hasAttribute("aria-invalid")) checkNumber(input);
     });

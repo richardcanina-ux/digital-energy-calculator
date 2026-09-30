@@ -413,6 +413,7 @@ input[type="range"]::-moz-range-thumb {
 
 /* A typed number that's empty, a decimal or out of range (app.js adds the message under the box) */
 .field-error { margin: 6px 0 0; color: var(--error); font-size: var(--step--1); font-weight: 600; }
+.choice-error { margin: 0 0 8px; } /* "Choose one of these options.": sits between the question and its answers */
 .device-row .field { flex-wrap: wrap; }
 .device-row .field-error { flex-basis: 100%; margin: 0; text-align: right; }
 .stepper input[aria-invalid] { border-color: var(--error); background: #FFF4F3; color: var(--error); }
@@ -462,6 +463,9 @@ input[type="range"]::-moz-range-thumb {
 .actions.habit-actions { flex-wrap: nowrap; margin: 4px 0 0; } /* Back and Next share one row */
 /* Running total while editing after the results */
 .habit-live { margin: 4px 0 0; color: var(--grid); font-size: var(--step--1); font-weight: 700; font-variant-numeric: tabular-nums; }
+/* "You haven't changed any answers yet" (once, before the first results) */
+.habit-unchanged { margin: 6px 0 2px; padding: 8px 12px; background: var(--white); border-left: 5px solid var(--volt); font-size: var(--step--1); font-weight: 600; }
+html:has(#habit-unchanged:not([hidden])) { scroll-padding-bottom: 200px; }
 /* WCAG 2.4.11: keep keyboard-focused fields from hiding behind the pinned bar */
 html:has(#step-habits:not([hidden])) { scroll-padding-bottom: 140px; }
 html:has(#habit-live:not([hidden])) { scroll-padding-bottom: 170px; } /* the bar is one line taller while editing */
