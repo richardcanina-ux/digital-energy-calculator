@@ -10,7 +10,7 @@ Team: Richard Canina Miranda (Leader + Website Builder), Isaac Suarez (Co-leader
 
 | File | What it does |
 |---|---|
-| `index.html` | The calculator: welcome → habits (4 short sections) → results → pledge → thank you, all on one page ("Start over" returns to the welcome screen) |
+| `index.html` | The calculator: welcome → habits (5 short sections) → results → pledge → thank you, all on one page ("Start over" returns to the welcome screen) |
 | `about.html` | Every formula, assumption and source, plus "Why this matters" |
 | `styles.css` | All styling (mobile-first) |
 | `app.js` | Formulas, results, tips, pledges, form submission; also fills numbers on `about.html` |
@@ -54,15 +54,15 @@ Each row is one completed calculator. Columns:
 
 | Column | Meaning |
 |---|---|
-| `video_hours`, `video_quality`, `video_screen`, `music_hours`, `social_hours`, `gaming_hours`, `gaming_platform`, `calls_hours`, `ai_prompts`, `ai_images`, `cloud_gb`, `phones`, `laptops`, `tablets` | What the student entered (hours are per day). `video_screen` is `phone`, `laptop`, `tv` or `monitor` (added in model `2026-09-v2`; empty in older rows) |
+| `video_hours`, `video_quality`, `video_screen`, `music_hours`, `social_hours`, `gaming_hours`, `gaming_platform`, `study_hours`, `browse_hours`, `calls_hours`, `ai_prompts`, `ai_images`, `cloud_gb`, `phones`, `laptops`, `tablets` | What the student entered (hours are per day). `video_screen` is `phone`, `laptop`, `tv` or `monitor`. `study_hours` is studying online (Pearson, e-books, class sites); `browse_hours` is browsing and searching (Google, library databases). `ai_prompts` includes Google AI summaries. The screen, studying and browsing columns were added in model `2026-09-v2` and are empty in older rows |
 | `kwh_total`, `co2_kg_total` | Yearly total kWh and kg CO₂ |
-| `kwh_video` … `kwh_devices` | Yearly kWh per category |
+| `kwh_video` … `kwh_devices` | Yearly kWh per category. `kwh_study` is studying and browsing together |
 | `top_category` | Their biggest category (`none` if every habit was 0) |
 | `expectation` | RQ5: `higher`, `about-right`, `lower` or `no-idea` compared to what they expected |
 | `pledge`, `pledge_kwh_saved` | The habit they chose and its yearly kWh saving. `pledge` is `none` and `pledge_kwh_saved` is 0 when none of the pledges fit their habits (for example, only device charging) |
 | `heard_from` | Where they heard about the calculator |
-| `habits_changed` | How many of the 14 habit answers they changed from where the form starts (0 to 14). **0 means they clicked straight through**, so their numbers are just the starting values: leave those rows out of the analysis. (Before their first results, anyone who hasn't changed anything sees a note asking "Are these really your habits?" and has to tap again to continue.) Empty in rows sent before this column was added |
-| `model_version` | Which version of `coefficients.js` produced the numbers. `2026-09-v1` didn't count TVs and monitors; `2026-09-v2` adds the TV or monitor for video, a TV for console gaming and a monitor for PC gaming, so compare the two groups carefully |
+| `habits_changed` | How many of the 16 habit answers they changed from where the form starts (0 to 16). **0 means they clicked straight through**, so their numbers are just the starting values: leave those rows out of the analysis. (Before their first results, anyone who hasn't changed anything sees a note asking "Are these really your habits?" and has to tap again to continue.) Empty in rows sent before this column was added |
+| `model_version` | Which version of `coefficients.js` produced the numbers. `2026-09-v1` didn't count TVs, monitors, studying or browsing; `2026-09-v2` adds the TV or monitor for video, a TV for console gaming, a monitor for PC gaming, and studying and browsing online, so compare the two groups carefully |
 | `language` | `en` or `es`: the language they used |
 
 No names, emails, student IDs or other personal information are collected. A hidden `bot-field` catches spam bots; Netlify drops submissions that fill it in.

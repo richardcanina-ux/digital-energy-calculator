@@ -13,8 +13,8 @@ const C = COEFFICIENTS;
 const DAYS_PER_YEAR = 365;
 const HOURS_PER_DAY = 24;
 
-// The 8 categories. Their names are in data/strings.js as "cat.<id>".
-const CATEGORIES = ["video", "music", "social", "gaming", "calls", "ai", "cloud", "devices"].map((id) => ({ id }));
+// The 9 categories. Their names are in data/strings.js as "cat.<id>".
+const CATEGORIES = ["video", "music", "social", "gaming", "study", "calls", "ai", "cloud", "devices"].map((id) => ({ id }));
 
 /* ================================================================== */
 /* FORMULAS (the same ones listed on about.html)                        */
@@ -75,6 +75,7 @@ function calculate(i) {
     music: yearlyKWh(i.music_hours, onlineWhPerHour(r.musicMbps)),
     social: yearlyKWh(i.social_hours, onlineWhPerHour(gbPerHourToMbps(r.socialGBPerHour))),
     gaming: yearlyKWh(i.gaming_hours, gamingWhPerHour(i.gaming_platform)),
+    study: yearlyKWh(i.study_hours + i.browse_hours, onlineWhPerHour(r.browsingMbps)), // studying + browsing, same rate
     calls: yearlyKWh(i.calls_hours, onlineWhPerHour(r.callsMbps)),
     ai: ((i.ai_prompts * C.ai.textPromptWh + i.ai_images * C.ai.imageWh) * DAYS_PER_YEAR) / 1000,
     cloud: i.cloud_gb * cloudKWhPerGBYear(),
@@ -438,6 +439,8 @@ if (form) {
       social_hours: numberField("social_hours"),
       gaming_hours: numberField("gaming_hours"),
       gaming_platform: form.elements.gaming_platform.value,
+      study_hours: numberField("study_hours"),
+      browse_hours: numberField("browse_hours"),
       calls_hours: numberField("calls_hours"),
       ai_prompts: numberField("ai_prompts"),
       ai_images: numberField("ai_images"),
@@ -510,7 +513,7 @@ if (form) {
   /* ---------- did they change anything? (to spot people who click straight through) ---------- */
 
   // The habits start filled in, so clicking straight through gives a real-looking total.
-  // habits_changed (sent with the form) counts how many of the 14 habit answers differ from where they started;
+  // habits_changed (sent with the form) counts how many of the 16 habit answers differ from where they started;
   // 0 means they didn't change anything, so those rows can be left out of the analysis.
   const unchangedNote = document.getElementById("habit-unchanged");
   let unchangedWarned = false; // the gentle note shows once; tapping See my results again continues
@@ -541,7 +544,7 @@ if (form) {
   // Only the answers are kept (nothing personal). "Start over" and sending clear it.
   const SAVE_KEY = "energiae-answers";
   const HABIT_FIELDS = ["video_hours", "video_quality", "video_screen", "music_hours", "social_hours", "gaming_hours", "gaming_platform",
-    "calls_hours", "ai_prompts", "ai_images", "cloud_gb", "phones", "laptops", "tablets"];
+    "study_hours", "browse_hours", "calls_hours", "ai_prompts", "ai_images", "cloud_gb", "phones", "laptops", "tablets"];
   const SAVED_FIELDS = [...HABIT_FIELDS, "expectation", "pledge", "heard_from"];
 
   function saveAnswers() {
@@ -593,7 +596,7 @@ if (form) {
     if (step !== "welcome") showStep(step);
   }
 
-  /* ---------- step 1 is split into 4 short sections ---------- */
+  /* ---------- step 1 is split into 5 short sections ---------- */
 
   const habitPages = [...steps.habits.querySelectorAll(".habit-page")];
   const habitDots = [...document.querySelectorAll(".habit-dot")];
@@ -656,7 +659,7 @@ if (form) {
 
   function updateOverlapNote() {
     const i = readInputs();
-    const hours = i.video_hours + i.music_hours + i.social_hours + i.gaming_hours + i.calls_hours;
+    const hours = i.video_hours + i.music_hours + i.social_hours + i.gaming_hours + i.study_hours + i.browse_hours + i.calls_hours;
     document.getElementById("overlap-note").hidden = hours <= HOURS_PER_DAY;
   }
 
@@ -1365,6 +1368,7 @@ const CALCULATED = {
   whHDMonitor: () => videoWhPerHour("HD", "monitor"),
   tvVsNetworkHD: () => C.screenWatts.tv / videoWhPerHour("HD", "phone"),
   whGaming: () => onlineWhPerHour(C.dataRates.gamingMbps),
+  whBrowsing: () => onlineWhPerHour(C.dataRates.browsingMbps),
   whGamingPhone: () => gamingWhPerHour("phone"),
   whGamingConsole: () => gamingWhPerHour("console"),
   whGamingPC: () => gamingWhPerHour("pc"),

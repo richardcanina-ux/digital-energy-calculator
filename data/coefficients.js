@@ -30,7 +30,8 @@
 
 const COEFFICIENTS = {
   // Bump this whenever a number changes, so submitted data can be grouped by model.
-  // v2 (2026-09-30): added the TV or monitor you watch or game on (section 4b).
+  // v2 (2026-09-30): added the TV or monitor you watch or game on (section 4b), studying and
+  // browsing online (browsingMbps), and Google AI summaries counted as AI text prompts.
   modelVersion: "2026-09-v2",
 
   /* ------------------------------------------------------------------ */
@@ -115,6 +116,12 @@ const COEFFICIENTS = {
     // and count only the always-on network share for each hour of gaming.
     // Confidence: MEDIUM (an assumption). VERIFY.
     gamingMbps: 0,
+
+    // Studying online (homework sites, e-books) and browsing (Google, library databases):
+    // web pages move little data compared with video, so, as for gaming, we set the extra data
+    // term to 0 and count only the always-on network share plus data centers for each hour.
+    // Confidence: MEDIUM (an assumption). Pages with video would add a little. VERIFY.
+    browsingMbps: 0,
   },
 
   /* ------------------------------------------------------------------ */
@@ -187,6 +194,9 @@ const COEFFICIENTS = {
     // Published range: 0.24 Wh (Google 2025) to about 3 Wh (widely cited 2023 estimate).
     //   Very long inputs or "reasoning" modes can reach 2.5 to 40 Wh (Epoch 2025).
     // Confidence: MEDIUM. Recent measured and disclosed figures agree at about 0.24 to 0.34 Wh.
+    // Also used as a STAND-IN for one Google AI summary (AI Overview) in search results: we found no
+    // published energy figure for those, so each one counts as one text prompt.
+    // Confidence for that use: LOW. VERIFY.
     textPromptWh: 0.3,
 
     // One AI-generated image: 2.9 kWh per 1,000 images = 2.9 Wh per image

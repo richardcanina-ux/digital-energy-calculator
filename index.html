@@ -50,6 +50,8 @@
     <symbol id="i-ai" viewBox="0 0 24 24"><path d="M11 3l1.8 5.2L18 10l-5.2 1.8L11 17l-1.8-5.2L4 10l5.2-1.8z"/><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" fill="currentColor"/></symbol>
     <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 19h10.5a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.2 11 4 4 0 0 0 7 19z"/></symbol>
     <symbol id="i-devices" viewBox="0 0 24 24"><path d="M9 2v5M15 2v5M6 7h12v3.5a6 6 0 0 1-12 0zM12 16.5V22"/></symbol>
+    <symbol id="i-study" viewBox="0 0 24 24"><path d="M12 6.5C10 5 7 4.5 3 5v13c4-.5 7 0 9 1.5 2-1.5 5-2 9-1.5V5c-4-.5-7 0-9 1.5zM12 6.5V19"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.3 15.3 21 21"/></symbol>
     <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
     <symbol id="i-co2" viewBox="0 0 24 24"><path d="M7 19.5h10.5a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.2 11.5 4 4 0 0 0 7 19.5z"/><text x="12.2" y="17.2" text-anchor="middle" font-size="5.8" font-weight="700" font-family="system-ui, sans-serif" fill="currentColor" stroke="none">CO₂</text></symbol>
     <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M12 2.5a6.2 6.2 0 0 0-3.7 11.2c.7.5 1.2 1.3 1.2 2.2v.6h5v-.6c0-.9.5-1.7 1.2-2.2A6.2 6.2 0 0 0 12 2.5z" style="fill: var(--volt)"/><path d="M9.5 19h5M10.5 21.5h3"/></symbol>
@@ -198,6 +200,26 @@
         </fieldset>
 
         <fieldset class="group habit-page" data-page="3" tabindex="-1" hidden>
+          <legend data-i18n="group.study">Study and search</legend>
+
+          <div class="field">
+            <label for="study_hours"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-study"></use></svg><span data-i18n="study.label">Studying online</span> <span class="hint" data-i18n="study.hint">Pearson, e-books, homework and class websites</span></label>
+            <div class="slider-row">
+              <input type="range" id="study_hours" name="study_hours" min="0" max="12" step="0.5" value="2">
+              <output for="study_hours"></output>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="browse_hours"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"></use></svg><span data-i18n="browse.label">Browsing and searching</span> <span class="hint" data-i18n="browse.hint">Google, library databases, research sites</span></label>
+            <div class="slider-row">
+              <input type="range" id="browse_hours" name="browse_hours" min="0" max="12" step="0.5" value="1">
+              <output for="browse_hours"></output>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="group habit-page" data-page="4" tabindex="-1" hidden>
           <legend data-i18n="group.talk">Talk and ask</legend>
 
           <div class="field">
@@ -209,7 +231,7 @@
           </div>
 
           <div class="field">
-            <label for="ai_prompts"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-ai"></use></svg><span data-i18n="aiPrompts.label">AI chatbot prompts</span> <span class="hint" data-i18n="aiPrompts.hint">messages to ChatGPT, Gemini, Claude, per day</span></label>
+            <label for="ai_prompts"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-ai"></use></svg><span data-i18n="aiPrompts.label">AI chatbot prompts</span> <span class="hint" data-i18n="aiPrompts.hint">messages to ChatGPT, Gemini or Claude, plus Google AI summaries, per day</span></label>
             <div class="stepper">
               <button type="button" class="step-btn" data-step-for="ai_prompts" data-delta="-1" aria-label="Fewer AI prompts" data-i18n-aria="aria.fewerPrompts">−</button>
               <input type="number" id="ai_prompts" name="ai_prompts" min="0" max="200" step="1" value="5" inputmode="numeric">
@@ -227,7 +249,7 @@
           </div>
         </fieldset>
 
-        <fieldset class="group habit-page" data-page="4" tabindex="-1" hidden>
+        <fieldset class="group habit-page" data-page="5" tabindex="-1" hidden>
           <legend data-i18n="group.store">Store and charge</legend>
 
           <div class="field">
@@ -283,8 +305,9 @@
             <button type="button" class="habit-dot" data-page="2"></button>
             <button type="button" class="habit-dot" data-page="3"></button>
             <button type="button" class="habit-dot" data-page="4"></button>
+            <button type="button" class="habit-dot" data-page="5"></button>
           </div>
-          <p class="habit-count" id="habit-count">Section 1 of 4</p>
+          <p class="habit-count" id="habit-count">Section 1 of 5</p>
         </div>
 
         <div class="actions habit-actions">
@@ -426,6 +449,7 @@
         <input type="hidden" name="kwh_music">
         <input type="hidden" name="kwh_social">
         <input type="hidden" name="kwh_gaming">
+        <input type="hidden" name="kwh_study">
         <input type="hidden" name="kwh_calls">
         <input type="hidden" name="kwh_ai">
         <input type="hidden" name="kwh_cloud">

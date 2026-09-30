@@ -95,12 +95,17 @@
       PC: <span data-c="gamingDeviceWatts.pc"></span> W + monitor <span data-c="screenWatts.monitor"></span> W → <span data-calc="whGamingPC" data-digits="2"></span> Wh per hour
     </div>
 
+    <h3>Studying and browsing</h3>
+    <div class="formula">kWh/year = (studying + browsing hours/day) × 365 × online Wh per hour at <span data-c="dataRates.browsingMbps"></span> Mbps extra (<span data-calc="whBrowsing" data-digits="2"></span> Wh) ÷ 1,000</div>
+    <p>Web pages move little data compared with video, so, as for gaming, we count only the network's always-on share and the data centers for each hour. An hour of homework online comes out about the same as an hour of scrolling social media.</p>
+
     <h3>Video calls</h3>
     <div class="formula">kWh/year = hours/day × 365 × online Wh per hour at <span data-c="dataRates.callsMbps"></span> Mbps up + down (<span data-calc="whCalls" data-digits="2"></span> Wh) ÷ 1,000</div>
 
     <h3>AI prompts and images</h3>
     <div class="formula">kWh/year = (prompts/day × <span data-c="ai.textPromptWh"></span> Wh + images/day × <span data-c="ai.imageWh"></span> Wh) × 365 ÷ 1,000</div>
     <p>One image uses about <span data-calc="imageVsText" data-digits="0"></span> times the energy of one text prompt.</p>
+    <p>Google AI summaries (the AI answer at the top of some searches) are counted as one text prompt each. We found no published energy figure for them, so this is a stand-in, and our confidence in it is low.</p>
 
     <h3>Cloud storage</h3>
     <div class="formula">
@@ -126,9 +131,9 @@
     <h2>Assumptions and limits</h2>
     <ul>
       <li><strong>No double counting.</strong> The electricity that charges your phone, laptop and tablet is counted only under "Charging devices." Streaming, music, social media, calls and phone gaming count only the network and data centers. A TV or monitor is plugged in, so it's never in "Charging devices"; its power is added to video when you watch on it.</li>
-      <li><strong>TVs and monitors are a typical certified model:</strong> the median of the ENERGY STAR certified models (about 55-inch TVs and 27-inch monitors). A bigger screen uses more, and a smaller one less. For gaming we assume a console plays on a TV and a PC on one monitor. The desktop computer a monitor is plugged into is not counted.</li>
+      <li><strong>TVs and monitors are a typical certified model:</strong> the median of the ENERGY STAR certified models (about 55-inch TVs and 27-inch monitors). A bigger screen uses more, and a smaller one less. For gaming we assume a console plays on a TV and a PC on one monitor. The desktop computer a monitor is plugged into is not counted, and neither is a monitor used for studying or browsing (only video and gaming ask about screens).</li>
       <li><strong>Home Wi-Fi is assumed.</strong> Mobile data networks use different numbers, and we don't model them separately.</li>
-      <li><strong>Data-center energy for video</strong> is also used for music, social media, calls and gaming, because we found no separate published figure. Audio probably needs less.</li>
+      <li><strong>Data-center energy for video</strong> is also used for music, social media, studying, browsing, calls and gaming, because we found no separate published figure. Audio probably needs less.</li>
       <li><strong>Florida's grid is used for all CO₂,</strong> even though many data centers that serve you are in other states. Grid losses (about <span data-c="gridLossPct" data-digits="0"></span>%) are not added.</li>
       <li><strong>Overlapping activities are allowed.</strong> If you listen to music while scrolling, both are counted.</li>
       <li><strong>Averages hide big differences.</strong> A high-end gaming PC, a long AI "reasoning" chat or a 4K TV can use far more than our middle values.</li>
@@ -175,7 +180,7 @@
           <tr><td>Video call data rate</td><td><a href="https://support.zoom.com/hc/en/article?id=zm_kb&amp;sysparm_article=KB0060748">Zoom Support, bandwidth requirements (2026)</a></td><td>High</td></tr>
           <tr><td>Console power while gaming</td><td><a href="https://www.hydroquebec.com/residential/energy-wise/tips/electronics/game-consoles.html">Hydro-Québec, game consoles (2026)</a></td><td>Medium</td></tr>
           <tr><td>Gaming PC power while gaming; consoles idling in menus (tip)</td><td><a href="https://link.springer.com/article/10.1007/s12053-015-9371-1">Mills &amp; Mills, Energy Efficiency (2016)</a>; <a href="https://greengaming.lbl.gov/faqs">LBNL Green Gaming FAQ</a></td><td>Medium-low</td></tr>
-          <tr><td>AI text prompt</td><td><a href="https://epoch.ai/gradient-updates/how-much-energy-does-chatgpt-use">Epoch AI (2025)</a>; <a href="https://arxiv.org/abs/2508.15734">Google, Measuring the environmental impact of delivering AI at Google scale (2025)</a></td><td>Medium</td></tr>
+          <tr><td>AI text prompt (also the stand-in for Google AI summaries)</td><td><a href="https://epoch.ai/gradient-updates/how-much-energy-does-chatgpt-use">Epoch AI (2025)</a>; <a href="https://arxiv.org/abs/2508.15734">Google, Measuring the environmental impact of delivering AI at Google scale (2025)</a></td><td>Medium (Low for AI summaries)</td></tr>
           <tr><td>AI image</td><td><a href="https://arxiv.org/abs/2311.16863">Luccioni, Jernite &amp; Strubell, Power Hungry Processing, ACM FAccT (2024)</a></td><td>Low-medium</td></tr>
           <tr><td>Cloud storage: drive power, PUE; U.S. data-center use</td><td><a href="https://eta-publications.lbl.gov/sites/default/files/2024-12/lbnl-2024-united-states-data-center-energy-usage-report_1.pdf">Lawrence Berkeley National Laboratory, 2024 U.S. Data Center Energy Usage Report</a></td><td>High (parts), Low (final cloud number)</td></tr>
           <tr><td>Cloud storage: typical drive size</td><td><a href="https://www.backblaze.com/blog/backblaze-drive-stats-for-2025/">Backblaze, Drive Stats for 2025 (2026)</a></td><td>Medium</td></tr>
