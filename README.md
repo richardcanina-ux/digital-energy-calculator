@@ -17,6 +17,7 @@ Team: Richard Canina Miranda (Leader + Website Builder), Isaac Suarez (Co-leader
 | `data/coefficients.js` | **Every energy and emissions number**, each with its source, year, URL, range and confidence |
 | `data/strings.js` | **Every piece of text**, in English (`en`) and Spanish (`es`) |
 | `images/welcome-illustration.webp` | Welcome screen illustration (1000×667, transparent background, ~100 KB). If it's missing, the welcome screen simply shows without it |
+| `images/og-image.jpg` | Link preview picture (1200×630) shown when someone sends the site address in a text, WhatsApp, iMessage, LinkedIn or Discord |
 
 Plain HTML, CSS and JavaScript. No framework, no build step, no npm packages.
 
@@ -64,6 +65,16 @@ Each row is one completed calculator. Columns:
 | `language` | `en` or `es`: the language they used |
 
 No names, emails, student IDs or other personal information are collected. A hidden `bot-field` catches spam bots; Netlify drops submissions that fill it in.
+
+Typed numbers (AI prompts, AI images, cloud GB, devices) must be whole numbers within their range before anyone can move on, so the CSV never has values like `-5` that the calculation didn't use.
+
+## Other features worth knowing
+
+- **Picks up where you left off.** Answers and the current step are kept in the browser tab (`sessionStorage`) while someone reads `about.html`, so "Back to the calculator" returns them to the same place. Nothing leaves the phone, and it's cleared by **Start over**, after sending, or when the tab closes.
+- **Share image.** On the results screen, **Download image** (and **Share my card** on phones that support it) saves a 1080×1350 picture of the card. It includes the "Estimate" label, the model version, and the address of `about.html`. The address comes from the `og:url` tag in `index.html`.
+- **Running total.** Only after someone taps **Edit my habits** on the results screen does a live "Your total now" line appear, so it can't influence the "Compared to what you expected" question (RQ5).
+- **"If 1,000 students…"** The thank-you screen multiplies the pledge's saving by 1,000. That's a round "what if" number set in `app.js` (`COLLECTIVE_STUDENTS`), not a count of real students.
+- **Link previews.** The `og:` tags in `index.html` and `about.html` use the full address `https://energiae-calculator.netlify.app/`. If the site address ever changes, update those tags (apps don't run JavaScript, so they need it written out).
 
 ## Feedback responses
 

@@ -238,6 +238,10 @@ const DISK = {
   maxMotionSeconds: 5,
 };
 
+// The "what if" line on the thank-you screen multiplies one pledge by this round number.
+// It is NOT a count of real students (display setting, not energy data).
+const COLLECTIVE_STUDENTS = 1000;
+
 /* ================================================================== */
 /* SENDING TO NETLIFY (used by the calculator and the feedback form)    */
 /* ================================================================== */
@@ -395,6 +399,119 @@ if (form) {
     };
   }
 
+  /* ---------- typed numbers: checked before moving on ---------- */
+
+  // The typed boxes (AI prompts and images, cloud GB, devices). Sliders can't go out of range, but these can.
+  const numberInputs = [...form.querySelectorAll('input[type="number"]')];
+
+  // Each typed box gets an error line under it, empty until there's a problem.
+  numberInputs.forEach((input) => {
+    const error = document.createElement("p");
+    error.className = "field-error";
+    error.id = `${input.id}-error`;
+    error.hidden = true;
+    input.closest(".field").append(error);
+    input.setAttribute("aria-describedby", error.id);
+  });
+
+  // Shows or clears one box's error. Empty, not a number, a decimal or out of range all count as a problem,
+  // so we never quietly calculate (or send) a different number than the one on screen.
+  function checkNumber(input) {
+    const ok = input.value !== "" && input.checkValidity(); // checkValidity covers min, max and whole numbers (step="1")
+    const error = document.getElementById(`${input.id}-error`);
+    error.textContent = ok ? "" : t("valid.number", { min: fmt(Number(input.min)), max: fmt(Number(input.max)) });
+    error.hidden = ok;
+    if (ok) input.removeAttribute("aria-invalid");
+    else input.setAttribute("aria-invalid", "true");
+    return ok;
+  }
+
+  // Checks every typed box in these sections. On the first problem it opens that section and puts the cursor in the box.
+  function sectionsAreValid(pages) {
+    const bad = pages
+      .flatMap((page) => [...page.querySelectorAll('input[type="number"]')])
+      .filter((input) => !checkNumber(input)); // checks them all, so every problem shows at once
+    if (!bad.length) return true;
+    const k = habitPages.indexOf(bad[0].closest(".habit-page"));
+    if (k !== habitPage) showHabitPage(k, { focus: false });
+    bad[0].focus(); // scroll-padding keeps it above the pinned buttons
+    return false;
+  }
+
+  // Messages appear only when moving forward (Next, a later dot, See my results). Showing them when the box
+  // loses focus would push the buttons down in the middle of a tap, so the tap would miss.
+  numberInputs.forEach((input) => {
+    input.addEventListener("input", () => {
+      if (input.hasAttribute("aria-invalid")) checkNumber(input); // the message goes away as soon as it's fixed
+    });
+  });
+
+  /* ---------- running total, only while editing after seeing the results ---------- */
+
+  // Hidden the first time through, so it can't spoil the reveal or the "Compared to what you expected" answer.
+  const liveTotal = document.getElementById("habit-live");
+  let editBaseline = null; // the total on the results card when they tapped "Edit my habits"; null = first time through
+
+  function updateLiveTotal() {
+    liveTotal.hidden = editBaseline === null;
+    if (editBaseline === null) return;
+    liveTotal.textContent = t("habits.live", { kwh: fmtKWh(calculate(readInputs()).total), was: fmtKWh(editBaseline) });
+  }
+
+  /* ---------- keep answers while visiting about.html (this browser tab only) ---------- */
+
+  // sessionStorage stays on this device, in this tab only, and is gone when the tab closes.
+  // Only the answers are kept (nothing personal). "Start over" and sending clear it.
+  const SAVE_KEY = "energiae-answers";
+  const SAVED_FIELDS = ["video_hours", "video_quality", "music_hours", "social_hours", "gaming_hours", "gaming_platform",
+    "calls_hours", "ai_prompts", "ai_images", "cloud_gb", "phones", "laptops", "tablets", "expectation", "pledge", "heard_from"];
+
+  function saveAnswers() {
+    const step = Object.keys(steps).find((key) => !steps[key].hidden);
+    try {
+      if (step === "thanks") {
+        sessionStorage.removeItem(SAVE_KEY); // finished: the next visit starts fresh
+        return;
+      }
+      const values = Object.fromEntries(SAVED_FIELDS.map((name) => [name, form.elements[name].value]));
+      sessionStorage.setItem(SAVE_KEY, JSON.stringify({ values, step, page: habitPage, baseline: editBaseline }));
+    } catch (e) {
+      // storage can be blocked (private mode); the calculator still works, it just can't pick up where it left off
+    }
+  }
+
+  function clearAnswers() {
+    try {
+      sessionStorage.removeItem(SAVE_KEY);
+    } catch (e) {
+      // nothing was saved
+    }
+  }
+
+  // Picks up where this tab left off, e.g. after reading about.html and tapping "Back to the calculator".
+  function restoreAnswers() {
+    let saved = null;
+    try {
+      saved = JSON.parse(sessionStorage.getItem(SAVE_KEY));
+    } catch (e) {
+      return;
+    }
+    if (!saved || !saved.values) return;
+    SAVED_FIELDS.forEach((name) => {
+      const value = saved.values[name];
+      if (typeof value === "string" && value !== "") form.elements[name].value = value;
+    });
+    form.querySelectorAll('input[type="range"]').forEach(updateSlider);
+    updateOverlapNote();
+    editBaseline = typeof saved.baseline === "number" ? saved.baseline : null;
+    const step = ["habits", "results", "pledge"].includes(saved.step) ? saved.step : "welcome";
+    showHabitPage(step === "habits" ? Number(saved.page) || 0 : 0, { focus: false });
+    updateLiveTotal();
+    if (step === "results" || step === "pledge") renderResults();
+    if (step === "pledge") renderPledges();
+    if (step !== "welcome") showStep(step);
+  }
+
   /* ---------- step 1 is split into 4 short sections ---------- */
 
   const habitPages = [...steps.habits.querySelectorAll(".habit-page")];
@@ -425,18 +542,27 @@ if (form) {
     habitPage = Math.max(0, Math.min(habitPages.length - 1, k));
     habitPages.forEach((page, i) => (page.hidden = i !== habitPage));
     updateHabitNav();
+    saveAnswers();
     if (focus) {
       window.scrollTo(0, 0);
       habitPages[habitPage].focus({ preventScroll: true }); // screen readers read the section's name
     }
   }
 
-  habitNext.addEventListener("click", () => showHabitPage(habitPage + 1));
+  // Going forward checks this section's typed numbers first; going back never does.
+  habitNext.addEventListener("click", () => {
+    if (sectionsAreValid([habitPages[habitPage]])) showHabitPage(habitPage + 1);
+  });
   document.getElementById("habit-back").addEventListener("click", () => {
     if (habitPage === 0) showStep("welcome"); // Back from the first section returns to the welcome screen
     else showHabitPage(habitPage - 1);
   });
-  habitDots.forEach((dot, k) => dot.addEventListener("click", () => showHabitPage(k)));
+  habitDots.forEach((dot, k) =>
+    dot.addEventListener("click", () => {
+      if (k > habitPage && !sectionsAreValid([habitPages[habitPage]])) return;
+      showHabitPage(k);
+    })
+  );
 
   /* ---------- step 1 controls: sliders and steppers ---------- */
 
@@ -464,17 +590,18 @@ if (form) {
   form.querySelectorAll(".step-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const input = document.getElementById(btn.dataset.stepFor);
-      const next = Number(input.value || 0) + Number(btn.dataset.delta);
+      const next = Math.round(Number(input.value) || 0) + Number(btn.dataset.delta);
       input.value = Math.min(Number(input.max), Math.max(Number(input.min), next));
+      input.dispatchEvent(new Event("input", { bubbles: true })); // clears an error, updates the running total, saves
     });
   });
 
-  // If someone types a number outside the allowed range, show the value we actually use.
-  form.querySelectorAll('input[type="number"]').forEach((input) => {
-    input.addEventListener("change", () => {
-      input.value = numberField(input.name);
-    });
+  // Any change to an answer: update the running total and remember the answers for this tab.
+  form.addEventListener("input", () => {
+    updateLiveTotal();
+    saveAnswers();
   });
+  form.addEventListener("change", saveAnswers);
 
   /* ---------- navigation between steps ---------- */
 
@@ -489,6 +616,7 @@ if (form) {
     const heading = steps[name].querySelector("h1, h2");
     if (heading) heading.focus({ preventScroll: true });
     if (name === "thanks" && feedbackUI) feedbackUI.show();
+    saveAnswers();
   }
 
   // Checks the required fields inside one step; shows the browser's message on the first problem.
@@ -504,7 +632,14 @@ if (form) {
   document.querySelectorAll("[data-go]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const target = btn.dataset.go;
-      if (target === "habits") showHabitPage(0, { focus: false });
+      if (target === "habits") {
+        // "Edit my habits" (from the results) shows a running total; starting from the welcome screen doesn't.
+        editBaseline = !steps.results.hidden && lastResult ? lastResult.result.total : null;
+        showHabitPage(0, { focus: false });
+        updateLiveTotal();
+      }
+      // "See my results": every typed number must be valid first.
+      if (target === "results" && !steps.habits.hidden && !sectionsAreValid(habitPages)) return;
       if (target === "results") {
         const unchanged = lastResult && JSON.stringify(readInputs()) === JSON.stringify(lastResult.inputs);
         if (unchanged) document.getElementById("result-card").classList.add("is-settled");
@@ -639,6 +774,7 @@ if (form) {
     countUp(document.getElementById("phone-charges"), result.total / C.comparisons.phoneChargeKWh, 0, REVEAL.countUpDelayMs);
     countUp(document.getElementById("home-days"), result.total / floridaHomeKWhPerDay(), 1, REVEAL.countUpDelayMs);
     requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add("is-revealed")));
+    prepareShareImage();
   }
 
   // Florida's power mix strip on the results card (numbers from coefficients.js).
@@ -655,6 +791,202 @@ if (form) {
       `<span class="mix-key" aria-hidden="true"></span>${t("mix.label", { year, pct: fmt(mix.gas) })}` +
       `<span class="visually-hidden">, ${rest}</span>`;
   }
+
+  /* ---------- share image: the results card drawn on a canvas (no libraries) ---------- */
+
+  const shareActions = document.getElementById("share-actions");
+  const shareBtn = document.getElementById("share-btn");
+  const screenshotHint = document.getElementById("screenshot-hint");
+  let shareFile = null; // made ahead of time: phones only allow sharing right after a tap, with no waiting
+  let shareRun = 0;
+
+  // Can this browser send an image to the phone's share sheet? If not, only "Download image" shows.
+  const canShareFiles = (() => {
+    try {
+      return !!navigator.canShare && navigator.canShare({ files: [new File([""], "test.png", { type: "image/png" })] });
+    } catch (e) {
+      return false;
+    }
+  })();
+  shareBtn.hidden = !canShareFiles;
+
+  // The official site address comes from the og:url tag in index.html, so shared images always point to the
+  // live site (not a local preview or a Netlify test link). siteAddress drops the "https://" for printing.
+  const siteUrl = (path) => new URL(path, document.querySelector('meta[property="og:url"]')?.content || location.href).href;
+  const siteAddress = (path) => siteUrl(path).replace(/^https?:\/\//, "").replace(/\/$/, "");
+
+  // Draws the card as a 1080 × 1350 image (4:5 portrait: fits a phone screen and an Instagram post).
+  // Same numbers and wording as the card on screen, plus the estimate label, model version and methods address.
+  function drawShareCard({ result }) {
+    const W = 1080;
+    const H = 1350;
+    const pad = 72;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d");
+    const css = getComputedStyle(document.documentElement);
+    const cssVar = (name) => css.getPropertyValue(name).trim();
+    const display = cssVar("--font-display");
+    const body = cssVar("--font-body");
+    const [white, volt, deep, ink, mist] = ["--white", "--volt", "--grid-deep", "--ink", "--mist"].map(cssVar);
+    const soft = "rgba(255, 255, 255, 0.85)";
+
+    // Writes one line of text, shrinking it if it would be wider than maxWidth. Returns its width.
+    function text(str, x, y, { size, weight = 400, family = body, fill = white, align = "left", maxWidth = W - 2 * pad }) {
+      ctx.fontStretch = family === display ? "condensed" : "normal";
+      for (let s = size; s >= 12; s--) {
+        ctx.font = `${weight} ${s}px ${family}`;
+        if (ctx.measureText(str).width <= maxWidth) break;
+      }
+      ctx.fillStyle = fill;
+      ctx.textAlign = align;
+      ctx.fillText(str, x, y);
+      return ctx.measureText(str).width;
+    }
+    function roundBox(x, y, w, h, r) {
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(x, y, w, h, r);
+      else ctx.rect(x, y, w, h);
+    }
+    function fillBox(x, y, w, h, r, fill) {
+      roundBox(x, y, w, h, r);
+      ctx.fillStyle = fill;
+      ctx.fill();
+    }
+    function circle(x, y, r, fill) {
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = fill;
+      ctx.fill();
+    }
+
+    ctx.fillStyle = cssVar("--grid");
+    ctx.fillRect(0, 0, W, H);
+
+    // Brand and the "ESTIMATE" label
+    ctx.save();
+    ctx.translate(pad, 78);
+    ctx.scale(1.5, 1.5);
+    ctx.fillStyle = volt;
+    ctx.fill(new Path2D("M18 4 8 18h7l-2 10 11-15h-7z"));
+    ctx.restore();
+    text("Energiae", pad + 54, 118, { size: 46, weight: 700, family: display, fill: volt });
+    const estimate = t("share.estimate");
+    ctx.font = `700 26px ${body}`;
+    const chipW = ctx.measureText(estimate).width + 44;
+    roundBox(W - pad - chipW, 82, chipW, 46, 23);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = volt;
+    ctx.stroke();
+    text(estimate, W - pad - chipW / 2, 114, { size: 26, weight: 700, fill: volt, align: "center" });
+
+    text(t("results.title"), pad, 218, { size: 76, weight: 700, family: display });
+
+    // Meter digits, like the card
+    const digits = String(Math.round(result.total)).padStart(4, "0").split("");
+    const gap = 14;
+    const bw = Math.min(124, (W - 2 * pad - 200 - gap * (digits.length - 1)) / digits.length);
+    const bh = bw * 1.4;
+    const top = 262;
+    digits.forEach((d, k) => {
+      const x = pad + k * (bw + gap);
+      fillBox(x, top, bw, bh, 14, deep);
+      text(d, x + bw / 2, top + bh * 0.77, { size: Math.round(bw * 1.25), weight: 700, family: display, fill: volt, align: "center" });
+    });
+
+    // Meter disk and average watts, like the card
+    const cx = W - pad - 80;
+    const cy = top + bh / 2 - 16;
+    circle(cx, cy, 64, deep);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+    ctx.stroke();
+    circle(cx, cy, 49, mist);
+    fillBox(cx - 9, cy - 43, 18, 13, 3, ink);
+    circle(cx, cy, 7.5, deep);
+    const watts = averageWatts(result.total);
+    text(`${fmt(watts, watts < 10 ? 1 : 0)} W, 24/7`, cx, cy + 104, { size: 26, weight: 600, align: "center", maxWidth: 200 });
+
+    text(t("meter.unit"), pad, top + bh + 52, { size: 34, weight: 600 });
+
+    // Three comparisons
+    const stats = [
+      [t("stat.co2"), `${fmt(result.co2)} kg`],
+      [t("stat.phone"), `${fmt(result.total / C.comparisons.phoneChargeKWh)} ${t("unit.times")}`],
+      [t("stat.home"), `${fmt(result.total / floridaHomeKWhPerDay(), 1)} ${t("unit.days")}`],
+    ];
+    stats.forEach(([label, value], k) => {
+      const y = 530 + k * 74;
+      ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+      ctx.fillRect(pad, y, W - 2 * pad, 2);
+      const valueWidth = text(value, W - pad, y + 50, { size: 40, weight: 700, align: "right", maxWidth: 380 });
+      text(label, pad, y + 48, { size: 30, maxWidth: W - 2 * pad - valueWidth - 24 });
+    });
+
+    // Biggest categories (up to 5, so the image stays readable)
+    text(t("results.where"), pad, 824, { size: 38, weight: 700, family: display });
+    const sorted = CATEGORIES.map((c) => ({ id: c.id, value: result.kwh[c.id] }))
+      .filter((c) => c.value > 0)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 5);
+    const max = Math.max(...sorted.map((c) => c.value), 0.0001);
+    sorted.forEach((c, k) => {
+      const y = 852 + k * 66;
+      const valueWidth = text(fmtSmall(c.value), W - pad, y + 32, { size: 30, weight: 600, align: "right", maxWidth: 300 });
+      text(t(`cat.${c.id}`), pad, y + 32, { size: 30, maxWidth: W - 2 * pad - valueWidth - 24 });
+      fillBox(pad, y + 44, W - 2 * pad, 10, 5, "rgba(255, 255, 255, 0.18)");
+      fillBox(pad, y + 44, Math.max(10, ((W - 2 * pad) * c.value) / max), 10, 5, volt);
+    });
+
+    // What's not counted, who made it, and where the methods are
+    text(t("card.screens"), pad, 1222, { size: 24, fill: soft });
+    text(`${t("card.foot")} · ${t("share.model", { version: C.modelVersion })}`, pad, 1260, { size: 24, fill: soft });
+    text(t("share.how", { url: siteAddress("about.html") }), pad, 1300, { size: 26, weight: 700, fill: volt });
+    return canvas;
+  }
+
+  // Makes the image for the current results and language (after the results render, and when the language changes).
+  function prepareShareImage() {
+    if (!lastResult) return;
+    const run = ++shareRun;
+    const done = (blob) => {
+      if (run !== shareRun) return; // an older image finished late
+      shareFile = blob ? new File([blob], "energiae-digital-year.png", { type: "image/png" }) : null;
+      shareActions.hidden = !shareFile;
+      screenshotHint.hidden = !!shareFile; // if the image can't be made, the old "take a screenshot" tip shows instead
+    };
+    try {
+      drawShareCard(lastResult).toBlob(done, "image/png");
+    } catch (e) {
+      done(null);
+    }
+  }
+
+  function downloadShareImage() {
+    if (!shareFile) return;
+    const url = URL.createObjectURL(shareFile);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = shareFile.name;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  }
+
+  shareBtn.addEventListener("click", async () => {
+    if (!shareFile) return;
+    try {
+      await navigator.share({
+        files: [shareFile],
+        text: t("share.text", { kwh: fmt(lastResult.result.total), url: siteUrl("./") }),
+      });
+    } catch (err) {
+      if (err.name !== "AbortError") downloadShareImage(); // closing the share sheet does nothing; any other problem saves it instead
+    }
+  });
+  document.getElementById("download-btn").addEventListener("click", downloadShareImage);
 
   /* ---------- step 3: pledges ---------- */
 
@@ -799,14 +1131,24 @@ if (form) {
   function renderThanks() {
     const pledgeEl = sentPledgeId && form.querySelector(`.pledge[data-pledge="${sentPledgeId}"] .pledge-text`);
     const summary = document.getElementById("thanks-summary");
+    const collective = document.getElementById("thanks-collective");
     if (pledgeEl) {
       const text = pledgeEl.textContent.trim();
       const saved = pledgeSavings(lastResult.inputs, sentPledgeId);
       const amount = saved < 0.05 ? t("small.lessThan") : t("thanks.about", { kwh: fmtKWh(saved) });
       summary.textContent = t("thanks.summary", { pledge: text, amount }); // quoted in the student's own words
+      // "What if" line: the same pledge made by COLLECTIVE_STUDENTS people (a round number, not real data)
+      const together = saved * COLLECTIVE_STUDENTS;
+      collective.textContent = t("thanks.collective", {
+        students: fmt(COLLECTIVE_STUDENTS),
+        kwh: fmtKWh(together),
+        kg: fmtKWh(kgCO2(together)),
+        days: fmtKWh(together / floridaHomeKWhPerDay()),
+      });
     } else {
       summary.textContent = t("thanks.summaryNone");
     }
+    collective.hidden = !pledgeEl;
     document.getElementById("thanks-title").textContent = pledgeCopy().thanks;
   }
 
@@ -818,14 +1160,22 @@ if (form) {
     if (feedbackUI) feedbackUI.reset();
     form.querySelectorAll('input[type="range"]').forEach(updateSlider);
     updateOverlapNote();
+    numberInputs.forEach(checkNumber); // the reset values are valid, so this clears any error lines
+    editBaseline = null;
+    updateLiveTotal();
     showHabitPage(0, { focus: false });
     showStep("welcome");
+    clearAnswers();
   });
 
   // When the language changes, redraw every piece of text that JavaScript built (no animations replay).
   languageHooks.push(() => {
     form.querySelectorAll('input[type="range"]').forEach(updateSlider);
     updateHabitNav();
+    updateLiveTotal();
+    numberInputs.forEach((input) => {
+      if (input.hasAttribute("aria-invalid")) checkNumber(input);
+    });
     renderGridMix();
     const errorBox = document.getElementById("form-error");
     if (!errorBox.hidden && errorBox.dataset.key) errorBox.textContent = t(errorBox.dataset.key);
@@ -834,8 +1184,11 @@ if (form) {
     setDisk(lastResult.result.total);
     renderTips(renderBars(lastResult.result.kwh));
     renderPledges();
+    prepareShareImage();
     if (sentPledgeId !== null) renderThanks();
   });
+
+  restoreAnswers();
 }
 
 /* ================================================================== */
