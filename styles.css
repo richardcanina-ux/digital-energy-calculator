@@ -663,7 +663,8 @@ html:has(#step-pledge:not([hidden])) { scroll-padding-top: var(--sticky-h, 11rem
 .meter-small .digit { border-radius: 6px; }
 .pledge-change { flex: 1; min-width: 10em; margin: 0; font-weight: 600; font-size: var(--step--1); }
 .select-field { margin-top: 24px; }
-select {
+select,
+.heard-details input {
   width: 100%;
   max-width: 420px;
   min-height: 52px;
@@ -674,6 +675,11 @@ select {
   border: 2px solid var(--mist);
   border-radius: var(--radius);
 }
+/* "Would you like to add more details?": appears under the list for some answers */
+.heard-details { margin-top: -6px; }
+.heard-details:not([hidden]) { animation: details-in 0.2s ease-out; }
+@keyframes details-in { from { opacity: 0; transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .heard-details:not([hidden]) { animation: none; } }
 .form-error { color: var(--error); font-weight: 600; }
 .preview-note { background: var(--white); border-left: 5px solid var(--volt); padding: 10px 14px; }
 

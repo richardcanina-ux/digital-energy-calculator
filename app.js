@@ -548,7 +548,7 @@ if (form) {
   const SAVE_KEY = "energiae-answers";
   const HABIT_FIELDS = ["video_hours", "video_quality", "video_screen", "music_hours", "social_hours", "gaming_hours", "gaming_platform",
     "study_hours", "work_hours", "browse_hours", "calls_hours", "ai_prompts", "ai_images", "cloud_gb", "phones", "laptops", "tablets"];
-  const SAVED_FIELDS = [...HABIT_FIELDS, "expectation", "pledge", "heard_from"];
+  const SAVED_FIELDS = [...HABIT_FIELDS, "expectation", "pledge", "heard_from", "heard_details"];
 
   function saveAnswers() {
     const step = Object.keys(steps).find((key) => !steps[key].hidden);
@@ -590,6 +590,7 @@ if (form) {
     });
     form.querySelectorAll('input[type="range"]').forEach(updateSlider);
     updateOverlapNote();
+    updateHeardDetails();
     editBaseline = typeof saved.baseline === "number" ? saved.baseline : null;
     const step = !goHome && ["habits", "results", "pledge"].includes(saved.step) ? saved.step : "welcome";
     showHabitPage(step === "habits" ? Number(saved.page) || 0 : 0, { focus: false });
@@ -1159,6 +1160,20 @@ if (form) {
     updatePledgeMeter(false);
   }
 
+  /* ---------- optional details for some "Where did you hear about this?" answers ---------- */
+
+  // Professors, the department, clubs and events (options marked data-details in index.html) show an
+  // optional text box. Picking any other answer hides it and clears it, so details never go with the wrong answer.
+  const heardSelect = form.elements.heard_from;
+  const heardDetailsField = document.getElementById("heard-details-field");
+
+  function updateHeardDetails() {
+    const show = Boolean(heardSelect.selectedOptions[0]?.hasAttribute("data-details"));
+    if (!show) form.elements.heard_details.value = "";
+    heardDetailsField.hidden = !show;
+  }
+  heardSelect.addEventListener("change", updateHeardDetails);
+
   /* ---------- submitting ---------- */
 
   function fillHiddenFields(pledgeId) {
@@ -1173,6 +1188,7 @@ if (form) {
     set("top_category", result.kwh[top.id] > 0 ? top.id : "none"); // "none" when every habit is 0
     set("pledge_kwh_saved", round2(pledgeSavings(inputs, pledgeId)));
     set("habits_changed", habitsChanged()); // 0 = clicked straight through without changing any habit
+    set("heard_details", form.elements.heard_details.value.trim());
     set("model_version", C.modelVersion);
     set("language", lang); // "en" or "es": which language they used
   }
@@ -1258,6 +1274,7 @@ if (form) {
     updateOverlapNote();
     numberInputs.forEach(checkNumber); // the reset values are valid, so this clears any error lines
     clearChoiceErrors(form);
+    updateHeardDetails(); // the list is back to "Choose one", so the details box hides
     unchangedWarned = false;
     hideUnchangedNote();
     editBaseline = null;
