@@ -11,9 +11,10 @@ Team: Richard Canina Miranda (Leader + Website Builder), Isaac Suarez (Co-leader
 | File | What it does |
 |---|---|
 | `index.html` | The calculator: welcome → habits (5 short sections) → results → pledge → thank you, all on one page ("Start over" returns to the welcome screen) |
-| `about.html` | Every formula, assumption and source, plus "Why this matters" |
+| `about.html` | Every formula, assumption and source behind the calculator |
+| `why-it-matters.html` | The bigger picture (data centers, Florida's electricity) and what *The Story of More* and *Before the Flood* taught us. Linked from the calculator's header, welcome screen and footer |
 | `styles.css` | All styling (mobile-first) |
-| `app.js` | Formulas, results, tips, pledges, form submission; also fills numbers on `about.html` |
+| `app.js` | Formulas, results, tips, pledges, form submission; also fills numbers on `about.html` and `why-it-matters.html` |
 | `data/coefficients.js` | **Every energy and emissions number**, each with its source, year, URL, range and confidence |
 | `data/strings.js` | **Every piece of text**, in English (`en`) and Spanish (`es`) |
 | `images/welcome-illustration.webp` | Welcome screen illustration (1000×667, transparent background, ~100 KB). If it's missing, the welcome screen simply shows without it |
@@ -54,7 +55,8 @@ Each row is one completed calculator. Columns:
 
 | Column | Meaning |
 |---|---|
-| `video_hours`, `video_quality`, `video_screen`, `music_hours`, `social_hours`, `gaming_hours`, `gaming_platform`, `study_hours`, `work_hours`, `browse_hours`, `calls_hours`, `ai_prompts`, `ai_images`, `cloud_gb`, `phones`, `laptops`, `tablets` | What the student entered (hours are per day). `video_screen` is `phone`, `laptop`, `tv` or `monitor`. `study_hours` is studying online (Pearson, e-books, class sites); `work_hours` is working online at a job or internship (starts at 0; work video calls go in `calls_hours`); `browse_hours` is browsing and searching (Google, library databases). `ai_prompts` includes Google AI summaries. The screen, studying, working and browsing columns were added in model `2026-09-v2` and are empty in older rows |
+| `video_hours_phone`, `video_hours_laptop`, `video_hours_tv`, `video_hours_monitor`, `video_quality`, `music_hours`, `social_hours`, `gaming_hours`, `gaming_platform`, `study_hours`, `work_hours`, `browse_hours`, `calls_hours`, `ai_prompts`, `ai_images`, `cloud_gb`, `phones`, `laptops`, `tablets` | What the student entered (hours are per day). Video is entered per screen: hours on a phone or tablet, a laptop, a TV and a monitor (0 for a screen they don't watch on). `study_hours` is studying online (Pearson, e-books, class sites); `work_hours` is working online at a job or internship (starts at 0; work video calls go in `calls_hours`); `browse_hours` is browsing and searching (Google, library databases). `ai_prompts` includes Google AI summaries. Older rows: model `2026-09-v2` has one `video_screen` column instead of the four per-screen columns, and `2026-09-v1` has neither |
+| `video_hours` | Total video hours a day on all screens (the four per-screen columns added up), so it compares directly with older rows |
 | `kwh_total`, `co2_kg_total` | Yearly total kWh and kg CO₂ |
 | `kwh_video` … `kwh_devices` | Yearly kWh per category. `kwh_study` is studying and browsing together; `kwh_work` is working online |
 | `top_category` | Their biggest category (`none` if every habit was 0) |
@@ -62,8 +64,8 @@ Each row is one completed calculator. Columns:
 | `pledge`, `pledge_kwh_saved` | The habit they chose and its yearly kWh saving. `pledge` is `none` and `pledge_kwh_saved` is 0 when none of the pledges fit their habits (for example, only device charging) |
 | `heard_from` | Where they heard about the calculator. Codes: `Tabling – North Campus`, `Professor – in class`, `Professor – email or course page`, `Department or chairperson`, `Honors College`, `INIT meeting`, `Other club` (any club or student organization), `Campus event or presentation`, `Flyer or poster`, `Classmate or friend`, `Text or group chat`, `LinkedIn`, `Instagram`, `Other social media`, `Web search`, `Other` |
 | `heard_details` | Optional text, up to 100 characters, only offered after a professor, department, club or event answer (for example the class or event name). Empty for every other answer. The box asks people not to include their own name or contact details; if one does anyway, delete that submission in Netlify |
-| `habits_changed` | How many of the 17 habit answers they changed from where the form starts (0 to 17). **0 means they clicked straight through**, so their numbers are just the starting values: leave those rows out of the analysis. (Before their first results, anyone who hasn't changed anything sees a note asking "Are these really your habits?" and has to tap again to continue.) Empty in rows sent before this column was added |
-| `model_version` | Which version of `coefficients.js` produced the numbers. `2026-09-v1` didn't count TVs, monitors, studying, working or browsing; `2026-09-v2` adds the TV or monitor for video, a TV for console gaming, a monitor for PC gaming, and studying, working and browsing online, so compare the two groups carefully |
+| `habits_changed` | How many of the 19 habit answers they changed from where the form starts (0 to 19). Ticking a screen for video counts as a change. **0 means they clicked straight through**, so their numbers are just the starting values: leave those rows out of the analysis. (Before their first results, anyone who hasn't changed anything sees a note asking "Are these really your habits?" and has to tap again to continue.) Empty in rows sent before this column was added |
+| `model_version` | Which version of `coefficients.js` produced the numbers. `2026-09-v1` didn't count TVs, monitors, studying, working or browsing; `2026-09-v2` adds the TV or monitor for video, a TV for console gaming, a monitor for PC gaming, and studying, working and browsing online; `2026-10-v3` asks for video hours on each screen (people can pick several) and takes the "1 hour less video" pledge from each screen in proportion. Compare the groups carefully |
 | `language` | `en` or `es`: the language they used |
 
 No names, emails, student IDs or other personal information are collected. A hidden `bot-field` catches spam bots; Netlify drops submissions that fill it in.

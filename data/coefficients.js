@@ -32,7 +32,10 @@ const COEFFICIENTS = {
   // Bump this whenever a number changes, so submitted data can be grouped by model.
   // v2 (2026-09-30): added the TV or monitor you watch or game on (section 4b), studying, working
   // and browsing online (browsingMbps), and Google AI summaries counted as AI text prompts.
-  modelVersion: "2026-09-v2",
+  // v3 (2026-10-01): video hours are entered per screen (people can pick several), and the
+  // "1 hour less video" pledge takes the hour from each screen in proportion to its hours.
+  // No energy numbers changed.
+  modelVersion: "2026-10-v3",
 
   /* ------------------------------------------------------------------ */
   /* 1. NETWORK: the power model (applies to every hour spent online)    */

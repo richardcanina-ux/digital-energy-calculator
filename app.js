@@ -16,6 +16,12 @@ const HOURS_PER_DAY = 24;
 // The 10 categories. Their names are in data/strings.js as "cat.<id>".
 const CATEGORIES = ["video", "music", "social", "gaming", "study", "work", "calls", "ai", "cloud", "devices"].map((id) => ({ id }));
 
+// The screens people watch video on (the same keys as COEFFICIENTS.screenWatts).
+// Video hours are entered per screen: inputs.video_hours_phone, video_hours_tv, ...
+const SCREENS = ["phone", "laptop", "tv", "monitor"];
+const videoHoursOn = (i, screen) => i[`video_hours_${screen}`];
+const totalVideoHours = (i) => SCREENS.reduce((sum, screen) => sum + videoHoursOn(i, screen), 0);
+
 /* ================================================================== */
 /* FORMULAS (the same ones listed on about.html)                        */
 /* ================================================================== */
@@ -71,7 +77,8 @@ function gamingWhPerHour(platform) {
 function calculate(i) {
   const r = C.dataRates;
   const kwh = {
-    video: yearlyKWh(i.video_hours, videoWhPerHour(i.video_quality, i.video_screen)),
+    // each screen: its hours × (network + data centers + that screen's own watts)
+    video: SCREENS.reduce((sum, screen) => sum + yearlyKWh(videoHoursOn(i, screen), videoWhPerHour(i.video_quality, screen)), 0),
     music: yearlyKWh(i.music_hours, onlineWhPerHour(r.musicMbps)),
     social: yearlyKWh(i.social_hours, onlineWhPerHour(gbPerHourToMbps(r.socialGBPerHour))),
     gaming: yearlyKWh(i.gaming_hours, gamingWhPerHour(i.gaming_platform)),
@@ -96,7 +103,14 @@ function calculate(i) {
 const minus = (value, amount) => Math.max(0, value - amount);
 
 const PLEDGES = {
-  video_less: (i) => ({ ...i, video_hours: minus(i.video_hours, 1) }),
+  // One hour less a day in total, taken from each screen in proportion to the hours on it
+  // (we don't know which screen the hour would come from).
+  video_less: (i) => {
+    const total = totalVideoHours(i);
+    if (total === 0) return i;
+    const keep = minus(total, 1) / total;
+    return { ...i, ...Object.fromEntries(SCREENS.map((screen) => [`video_hours_${screen}`, videoHoursOn(i, screen) * keep])) };
+  },
   video_hd: (i) => (i.video_quality === "4K" ? { ...i, video_quality: "HD" } : i),
   music_less: (i) => ({ ...i, music_hours: minus(i.music_hours, 1) }),
   social_less: (i) => ({ ...i, social_hours: minus(i.social_hours, 1) }),
@@ -118,12 +132,12 @@ function pledgeSavings(inputs, pledgeId) {
 /* ================================================================== */
 
 // The tip text is in data/strings.js as "tip.<category>". The AI tip includes a number from coefficients.js.
-// Video gets a different tip when the TV or monitor uses more than the network and data centers.
+// Video gets a different tip when their TV or monitor uses more than the network and data centers behind the shows.
 function tipFor(category, inputs) {
   if (category === "video") {
-    const screen = C.screenWatts[inputs.video_screen];
-    const network = videoWhPerHour(inputs.video_quality, inputs.video_screen) - screen;
-    if (screen > network) return t("tip.videoScreen");
+    const screenWh = SCREENS.reduce((sum, screen) => sum + videoHoursOn(inputs, screen) * C.screenWatts[screen], 0);
+    const networkWh = totalVideoHours(inputs) * videoWhPerHour(inputs.video_quality, "phone"); // phone adds 0 W: network + data centers only
+    if (screenWh > networkWh) return t("tip.videoScreen");
   }
   const ratio = Math.round(C.ai.imageWh / C.ai.textPromptWh);
   return t(`tip.${category}`, { ratio });
@@ -434,9 +448,11 @@ if (form) {
 
   function readInputs() {
     return {
-      video_hours: numberField("video_hours"),
+      video_hours_phone: numberField("video_hours_phone"),
+      video_hours_laptop: numberField("video_hours_laptop"),
+      video_hours_tv: numberField("video_hours_tv"),
+      video_hours_monitor: numberField("video_hours_monitor"),
       video_quality: form.elements.video_quality.value,
-      video_screen: form.elements.video_screen.value,
       music_hours: numberField("music_hours"),
       social_hours: numberField("social_hours"),
       gaming_hours: numberField("gaming_hours"),
@@ -516,7 +532,8 @@ if (form) {
   /* ---------- did they change anything? (to spot people who click straight through) ---------- */
 
   // The habits start filled in, so clicking straight through gives a real-looking total.
-  // habits_changed (sent with the form) counts how many of the 17 habit answers differ from where they started;
+  // habits_changed (sent with the form) counts how many of the 19 habit answers differ from where they started;
+  // (ticking a screen for video counts, because its hours go from 0 to something);
   // 0 means they didn't change anything, so those rows can be left out of the analysis.
   const unchangedNote = document.getElementById("habit-unchanged");
   let unchangedWarned = false; // the gentle note shows once; tapping See my results again continues
@@ -546,7 +563,7 @@ if (form) {
   // sessionStorage stays on this device, in this tab only, and is gone when the tab closes.
   // Only the answers are kept (nothing personal). "Start over" and sending clear it.
   const SAVE_KEY = "energiae-answers";
-  const HABIT_FIELDS = ["video_hours", "video_quality", "video_screen", "music_hours", "social_hours", "gaming_hours", "gaming_platform",
+  const HABIT_FIELDS = ["video_hours_phone", "video_hours_laptop", "video_hours_tv", "video_hours_monitor", "video_quality", "music_hours", "social_hours", "gaming_hours", "gaming_platform",
     "study_hours", "work_hours", "browse_hours", "calls_hours", "ai_prompts", "ai_images", "cloud_gb", "phones", "laptops", "tablets"];
   const SAVED_FIELDS = [...HABIT_FIELDS, "expectation", "pledge", "heard_from", "heard_details"];
 
@@ -558,7 +575,8 @@ if (form) {
         return;
       }
       const values = Object.fromEntries(SAVED_FIELDS.map((name) => [name, form.elements[name].value]));
-      sessionStorage.setItem(SAVE_KEY, JSON.stringify({ values, step, page: habitPage, baseline: editBaseline }));
+      const watch = watchChecks.filter((box) => box.checked).map((box) => box.value); // the ticked screens
+      sessionStorage.setItem(SAVE_KEY, JSON.stringify({ values, watch, step, page: habitPage, baseline: editBaseline }));
     } catch (e) {
       // storage can be blocked (private mode); the calculator still works, it just can't pick up where it left off
     }
@@ -588,6 +606,9 @@ if (form) {
       const value = saved.values[name];
       if (typeof value === "string" && value !== "") form.elements[name].value = value;
     });
+    const watched = Array.isArray(saved.watch) ? saved.watch : [];
+    watchChecks.forEach((box) => (box.checked = watched.includes(box.value)));
+    updateVideoScreens();
     form.querySelectorAll('input[type="range"]').forEach(updateSlider);
     updateOverlapNote();
     updateHeardDetails();
@@ -663,7 +684,7 @@ if (form) {
 
   function updateOverlapNote() {
     const i = readInputs();
-    const hours = i.video_hours + i.music_hours + i.social_hours + i.gaming_hours + i.study_hours + i.work_hours + i.browse_hours + i.calls_hours;
+    const hours = totalVideoHours(i) + i.music_hours + i.social_hours + i.gaming_hours + i.study_hours + i.work_hours + i.browse_hours + i.calls_hours;
     document.getElementById("overlap-note").hidden = hours <= HOURS_PER_DAY;
   }
 
@@ -674,6 +695,31 @@ if (form) {
       updateOverlapNote();
     });
   });
+
+  /* ---------- video: tick the screens you watch on, then set hours for each ---------- */
+
+  // A screen's hours slider shows only while its box is ticked, and the quality question shows once any is ticked.
+  // Ticking a screen starts its slider at NEW_SCREEN_HOURS, so there's something to adjust;
+  // unticking sets it back to 0 (the hours are what get counted and sent).
+  const NEW_SCREEN_HOURS = 1; // display setting, not energy data
+  const watchChecks = [...form.querySelectorAll(".watch-check")];
+
+  function updateVideoScreens() {
+    watchChecks.forEach((box) => (document.getElementById(`video-on-${box.value}`).hidden = !box.checked));
+    document.getElementById("quality-field").hidden = !watchChecks.some((box) => box.checked);
+  }
+
+  watchChecks.forEach((box) =>
+    box.addEventListener("change", () => {
+      const slider = form.elements[`video_hours_${box.value}`];
+      if (box.checked && Number(slider.value) === 0) slider.value = NEW_SCREEN_HOURS;
+      if (!box.checked) slider.value = 0;
+      updateSlider(slider);
+      updateVideoScreens();
+      updateOverlapNote();
+      updateLiveTotal(); // the form's own "change" listener saves the answers right after this
+    })
+  );
 
   form.querySelectorAll(".step-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -1181,6 +1227,7 @@ if (form) {
     const set = (name, value) => (form.elements[name].value = value);
     const round2 = (n) => Math.round(n * 100) / 100;
 
+    set("video_hours", round2(totalVideoHours(inputs))); // total on all screens, comparable with older rows
     set("kwh_total", round2(result.total));
     set("co2_kg_total", round2(result.co2));
     CATEGORIES.forEach((c) => set(`kwh_${c.id}`, round2(result.kwh[c.id])));
@@ -1275,6 +1322,7 @@ if (form) {
     numberInputs.forEach(checkNumber); // the reset values are valid, so this clears any error lines
     clearChoiceErrors(form);
     updateHeardDetails(); // the list is back to "Choose one", so the details box hides
+    updateVideoScreens(); // no screens ticked again, so their sliders and the quality question hide
     unchangedWarned = false;
     hideUnchangedNote();
     editBaseline = null;

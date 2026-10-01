@@ -93,7 +93,7 @@ h1:focus, h2:focus { outline: none; } /* headings get focus only so screen reade
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.field > label .icon, .field-note .icon, .tips strong .icon { color: var(--grid); }
+.field > label .icon, .choice > legend .icon, .field-note .icon, .tips strong .icon { color: var(--grid); }
 
 /* ---------- Header and footer ---------- */
 .site-header {
@@ -147,10 +147,14 @@ h1:focus, h2:focus { outline: none; } /* headings get focus only so screen reade
 .lang-toggle:hover { background: var(--mist); }
 .lang-note { background: var(--white); border-left: 5px solid var(--volt); padding: 10px 14px; }
 
-/* On narrow phones there's no room for everything: the welcome screen and footer already link to About. */
+/* On narrow phones there's no room for everything: the welcome screen and footer already link to both pages. */
 @media (max-width: 439px) {
   .header-link-optional { display: none; }
 }
+@media (max-width: 639px) {
+  .header-link-wide { display: none; } /* "Why it matters" needs a little more room */
+}
+.btn-primary.btn-fit { flex: 0 0 auto; } /* a single button that's only as wide as its text */
 
 .site-footer {
   background: var(--ink);
@@ -195,7 +199,8 @@ h1:focus, h2:focus { outline: none; } /* headings get focus only so screen reade
 .welcome-art { grid-area: art; width: 100%; max-width: 190px; margin: -4px auto 6px; } /* small on phones so the button stays on screen */
 .welcome-art img { display: block; width: 100%; height: auto; } /* transparent background, so it sits right on the page */
 .welcome > .actions { grid-area: actions; margin: 0 0 8px; }
-.welcome-how { grid-area: how; font-weight: 600; margin-bottom: 4px; }
+.welcome-how { grid-area: how; font-weight: 600; margin-bottom: 4px; display: flex; flex-wrap: wrap; gap: 4px 24px; }
+.welcome-how a { padding: 6px 0; } /* bigger tap area */
 .welcome > .privacy { grid-area: privacy; }
 .welcome > .power-line { grid-area: line; margin: 16px 0 0; }
 
@@ -372,6 +377,15 @@ input[type="range"]::-moz-range-thumb {
 .segmented-4 label { flex: 1 1 calc(50% - 3px); }
 .segmented-4 span { padding: 4px 8px; text-align: center; line-height: 1.2; }
 @media (min-width: 600px) { .segmented-4 label { flex-basis: 0; } }
+
+/* Video: "Where do you watch?" takes several answers (checkboxes), so ticked ones show a check mark */
+.sub-question { margin: 0 0 8px; font-weight: 600; }
+.segmented input[type="checkbox"]:checked + span::before { content: "✓"; margin-right: 6px; }
+/* One hours slider per ticked screen, tucked under the choices */
+.video-on { margin-top: 14px; padding-left: 12px; border-left: 3px solid var(--mist); }
+.video-on > label { display: block; font-weight: 600; margin-bottom: 2px; }
+.video-on:not([hidden]), #quality-field:not([hidden]) { animation: details-in 0.2s ease-out; }
+@media (prefers-reduced-motion: reduce) { .video-on:not([hidden]), #quality-field:not([hidden]) { animation: none; } }
 
 /* Number steppers */
 .stepper { display: inline-flex; align-items: stretch; }

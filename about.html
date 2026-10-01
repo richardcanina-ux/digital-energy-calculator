@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>About the Numbers | Energiae</title>
-  <meta name="description" content="Every formula, assumption and source behind the Energiae digital energy calculator, and why it matters.">
+  <meta name="description" content="Every formula, assumption and source behind the Energiae digital energy calculator.">
   <meta name="theme-color" content="#2433D6">
   <!-- Link preview card (same image as the calculator; see index.html) -->
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Energiae">
   <meta property="og:url" content="https://energiae-calculator.netlify.app/about.html">
   <meta property="og:title" content="About the numbers | Energiae">
-  <meta property="og:description" content="Every formula, assumption and source behind the Energiae digital energy calculator, and why it matters.">
+  <meta property="og:description" content="Every formula, assumption and source behind the Energiae digital energy calculator.">
   <meta property="og:image" content="https://energiae-calculator.netlify.app/images/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -72,7 +72,7 @@
 
     <h3>Video streaming</h3>
     <div class="formula">
-      kWh/year = hours/day × 365 × (online Wh per hour + screen watts) ÷ 1,000<br>
+      For each screen you watch on: kWh/year = hours/day on that screen × 365 × (online Wh per hour + that screen's watts) ÷ 1,000. Video's total is the screens added up.<br>
       SD: <span data-c="dataRates.videoGBPerHour.SD"></span> GB/h = <span data-calc="mbpsSD" data-digits="2"></span> Mbps → <span data-calc="whSD" data-digits="2"></span> Wh per hour online<br>
       HD: <span data-c="dataRates.videoGBPerHour.HD"></span> GB/h = <span data-calc="mbpsHD" data-digits="2"></span> Mbps → <span data-calc="whHD" data-digits="2"></span> Wh per hour online<br>
       4K: <span data-c="dataRates.videoGBPerHour.4K"></span> GB/h = <span data-calc="mbps4K" data-digits="2"></span> Mbps → <span data-calc="wh4K" data-digits="2"></span> Wh per hour online<br>
@@ -129,7 +129,7 @@
     <p>The spinning disk on the results card works like the disk in an old electric meter: it turns faster when you use more (within limits: very high use all turns at the same top speed, and very low use at the same slow speed). A real disk turns too slowly to see, so ours is sped up. Its speed is a picture of your average power, not a separate measurement. It spins for a few seconds after your results appear, then stops.</p>
 
     <h3>Pledges and tips</h3>
-    <p>Each pledge runs the same formulas again with one habit changed (for example, one less hour of video a day). The saving is the yearly total before the change minus the total after it. The small meter on the pledge step shows your total minus that saving, and the percentage is the saving divided by your total. The tips cover your biggest categories, up to three. If every habit is zero, no tips are shown.</p>
+    <p>Each pledge runs the same formulas again with one habit changed (for example, one less hour of video a day; if you watch on more than one screen, that hour comes off each screen in proportion to your hours on it). The saving is the yearly total before the change minus the total after it. The small meter on the pledge step shows your total minus that saving, and the percentage is the saving divided by your total. The tips cover your biggest categories, up to three. If every habit is zero, no tips are shown.</p>
 
     <h2>Assumptions and limits</h2>
     <ul>
@@ -143,31 +143,8 @@
       <li><strong>No personal data.</strong> We never collect names, emails, student IDs or anything that could identify you.</li>
     </ul>
 
-    <h2>The bigger picture</h2>
-    <p>Data centers around the world used about <span data-c="context.globalDataCentersTWh2025"></span> TWh of electricity in 2025, and the International Energy Agency expects about <span data-c="context.globalDataCentersTWh2030"></span> TWh by 2030. Data centers focused on AI grew <span data-c="context.aiDataCenterGrowth2025Pct"></span>% in 2025 alone.</p>
-    <p>In the United States, data centers used <span data-c="context.usDataCentersTWh2023"></span> TWh in 2023, which was <span data-c="context.usDataCentersSharePct2023"></span>% of all U.S. electricity. Lawrence Berkeley National Laboratory expects <span data-c="context.usDataCentersSharePct2028Low"></span>% to <span data-c="context.usDataCentersSharePct2028High" data-digits="0"></span>% by 2028.</p>
-    <p>Here in Florida, <span data-c="context.floridaMixPct.gas"></span>% of electricity came from natural gas in <span data-c="context.floridaMixYear" data-raw></span>, <span data-c="context.floridaMixPct.nuclear"></span>% from nuclear, <span data-c="context.floridaMixPct.solar"></span>% from solar, <span data-c="context.floridaMixPct.coal"></span>% from coal and <span data-c="context.floridaMixPct.other"></span>% from other sources. (The calculator rounds these to whole numbers.) That is why each kWh on Florida's grid comes with about <span data-calc="kgPerKWh" data-digits="2"></span> kg of CO₂.</p>
+    <p>For the bigger picture (data-center growth, Florida's electricity, and what <cite>The Story of More</cite> and <cite>Before the Flood</cite> taught us), see <a href="why-it-matters.html">Why it matters</a>.</p>
 
-    <h2>Why this matters</h2>
-
-    <h3>The Story of More, Chapter 11: Moving Around</h3>
-    <p>Hope Jahren remembers when Skype arrived in 2003, and people predicted that face-to-face meetings were finished. Instead, Americans now take almost two million more flights a year than they did in 2003. She tells a similar story about cars. After the 1973 oil embargo, engineers made engines about 50% more efficient by 1980. Americans then switched to minivans, SUVs and pickups, and by 2000 average fuel efficiency was lower than twenty years earlier. Jahren calls this a fork in the road where we chose the Story of More over a Story of Enough.</p>
-    <p>Digital technology repeats the pattern. Each video call, song or AI answer keeps getting more efficient, yet total data-center electricity is on track to roughly double by 2030. Efficiency alone doesn't lower the total if we keep using more.</p>
-
-    <h3>The Story of More, Chapter 12: The Plants We Burn</h3>
-    <p>Almost 90% of the energy used on Earth comes from burning coal, oil and natural gas. Jahren warns about how we talk about it:</p>
-    <blockquote>"the American conversation about oil, gas, and coal is never about how much we use, only about where we can get more."</blockquote>
-    <p>She makes the point with her friend Brian, who smoked for twenty years. Cigarettes took a smaller share of his salary over time, but the number he smoked each week rose sevenfold. Energy works the same way: fossil fuels fell from 94% to 85% of the world's energy in fifty years, while the total amount burned more than doubled.</p>
-    <p>That's why this calculator shows your <em>total</em> kWh, not just how efficient each app is. It asks how much we use.</p>
-
-    <h3>Before the Flood (National Geographic, 2016)</h3>
-    <ul>
-      <li>The film explains that coal and natural gas generate most of our electricity (about 8:35). In Florida, that mostly means natural gas.</li>
-      <li>It visits Miami Beach, where "sunny-day flooding" pushes seawater up through the storm drains. The city was raising roads and installing pumps in a project of about $400 million, which the mayor said would buy about 40 to 50 years. Florida is described as the most at-risk state for sea-level rise (about 19:40 to 21:40). That is our county.</li>
-      <li>Sunita Narain, of India's Centre for Science and Environment, points out that one American uses as much electricity at home as about 10 people in China, 34 in India or 61 in Nigeria. She argues that lifestyle and consumption must be at the center of climate talks (about 36:15).</li>
-      <li>The film ends by saying we can't know how the story ends, but we can control what we do next: how we live, what we consume and how we vote (about 1:26:30). Our pledge is one small version of that.</li>
-    </ul>
-    <p class="cite">Sources: Hope Jahren, <cite>The Story of More</cite>, Chapters 11 and 12, as summarized in our group notes. <cite>Before the Flood</cite>, directed by Fisher Stevens, National Geographic (2016); times are approximate.</p>
 
     <h2>Sources</h2>
     <div class="table-wrap">
@@ -205,7 +182,7 @@
       Energiae
     </p>
     <p data-i18n="footer.project">The Hidden Energy Cost of the Digital World. A PBL project by Richard Canina Miranda, Isaac Suarez and Lucas Alvarado for IDH 2003 Honors Leadership Seminar, Miami Dade College North Campus.</p>
-    <p class="footer-links"><a href="index.html" data-i18n="footer.tryCalc">Try the calculator</a><a href="index.html#feedback" data-i18n="footer.feedback">Give feedback</a></p>
+    <p class="footer-links"><a href="index.html" data-i18n="footer.tryCalc">Try the calculator</a><a href="why-it-matters.html" data-i18n="nav.why">Why it matters</a><a href="index.html#feedback" data-i18n="footer.feedback">Give feedback</a></p>
   </footer>
 
   <script src="data/coefficients.js"></script>
