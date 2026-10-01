@@ -4,7 +4,7 @@ A mobile-first website for the Energiae PBL project, **"The Hidden Energy Cost o
 
 Students scan a QR code, enter their digital habits, see an estimate of the electricity those habits use in a year (with CO₂ on Florida's grid and personal tips), and pledge to change one habit. Anonymous responses are collected with Netlify Forms for our final presentation.
 
-Team: Richard Canina Miranda (Leader + Website Builder), Isaac Suarez (Co-leader + Presentation maker), Lucas Alvarado (Researcher + Outreach).
+Team: Richard Canina (Leader + Website Builder), Isaac Suarez (Co-leader + Presentation maker), Lucas Alvarado (Researcher + Outreach).
 
 ## Files
 
@@ -12,6 +12,7 @@ Team: Richard Canina Miranda (Leader + Website Builder), Isaac Suarez (Co-leader
 |---|---|
 | `index.html` | The calculator: welcome → habits (5 short sections) → results → pledge → thank you, all on one page ("Start over" returns to the welcome screen) |
 | `about.html` | Every formula, assumption and source behind the calculator |
+| `privacy.html` | Privacy policy, written out in English and Spanish (both on the page; the language button picks one). Linked in every footer and on the pledge step |
 | `why-it-matters.html` | The bigger picture (data centers, Florida's electricity) and what *The Story of More* and *Before the Flood* taught us. Linked from the calculator's header, welcome screen and footer |
 | `styles.css` | All styling (mobile-first) |
 | `app.js` | Formulas, results, tips, pledges, form submission; also fills numbers on `about.html` and `why-it-matters.html` |
@@ -50,6 +51,8 @@ Then open <http://localhost:8000>.
 ## Export the responses
 
 Netlify dashboard → your project → **Forms** → **pledge-responses** → **Download as CSV**.
+
+**Before you analyze or share the CSV:** Netlify Forms automatically adds `ip`, `user_agent`, `referrer` and `created_at` columns to every submission (it can't be turned off). `ip` is personal information, so **delete the `ip`, `user_agent` and `referrer` columns** from your copy first. The privacy policy (`privacy.html`) promises this, and also promises that all responses and feedback are deleted from Netlify by the end of the Fall 2026 semester (Forms → each form → delete the submissions, or delete the form).
 
 Each row is one completed calculator. Columns:
 

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy | Energiae</title>
+  <meta name="description" content="What the Energiae digital energy calculator collects, who sees it, what stays on your device, and how long responses are kept.">
+  <meta name="theme-color" content="#2433D6">
+  <!-- Link preview card (same image as the calculator; see index.html) -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Energiae">
+  <meta property="og:url" content="https://energiae-calculator.netlify.app/privacy.html">
+  <meta property="og:title" content="Privacy policy | Energiae">
+  <meta property="og:description" content="What the Energiae digital energy calculator collects, who sees it, what stays on your device, and how long responses are kept.">
+  <meta property="og:image" content="https://energiae-calculator.netlify.app/images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Energiae digital energy calculator: What does your screen time cost the grid?">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232433D6'/%3E%3Cpath d='M18 4 8 18h7l-2 10 11-15h-7z' fill='%23FFD23F'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    // Runs before the page is drawn. If the page is about to switch to Spanish, hide it for a moment
+    // so English doesn't flash first. Same rule as pickLanguage() in app.js; applyLanguage() shows the
+    // page again, and a 3-second fallback shows it even if something goes wrong.
+    (function () {
+      var lang = new URLSearchParams(location.search).get("lang");
+      if (lang !== "en" && lang !== "es") {
+        try { lang = localStorage.getItem("energiae-lang"); } catch (e) { lang = null; }
+      }
+      if (lang !== "en" && lang !== "es") {
+        lang = (navigator.language || "en").toLowerCase().indexOf("es") === 0 ? "es" : "en";
+      }
+      if (lang === "es") {
+        document.documentElement.classList.add("i18n-pending");
+        setTimeout(function () { document.documentElement.classList.remove("i18n-pending"); }, 3000);
+      }
+    })();
+  </script>
+</head>
+<body data-title-key="doc.privacyTitle">
+  <header class="site-header">
+    <a class="wordmark" href="index.html#home" aria-label="Energiae home" data-i18n-aria="nav.home">
+      <svg class="wordmark-bolt" viewBox="0 0 32 32" aria-hidden="true"><path d="M18 4 8 18h7l-2 10 11-15h-7z"/></svg>
+      Energiae
+    </a>
+    <div class="header-actions">
+      <a class="header-link" href="index.html" data-i18n="nav.back">Back to the calculator</a>
+      <button type="button" class="lang-toggle" id="lang-toggle" lang="es" data-i18n="lang.switch" data-i18n-aria="lang.switchAria">Español</button>
+    </div>
+  </header>
+
+  <!-- The whole policy is written out in both languages; app.js shows the block that matches the page language
+       (data-show-lang). If you change one language, change the other one too. -->
+  <main class="page prose">
+
+    <div lang="en" data-show-lang="en">
+      <h1>Privacy policy</h1>
+      <p class="cite">Last updated: October 1, 2026</p>
+      <p class="lede">Energiae is a student project for IDH 2003 Honors Leadership Seminar at Miami Dade College North Campus. This page explains what the calculator collects, who sees it and what we do with it.</p>
+
+      <h2>What we ask for</h2>
+      <ul>
+        <li><strong>Your answers:</strong> your digital habits (hours, screens, AI use, cloud storage, devices you charge), whether your result was higher or lower than you expected, the pledge you chose, where you heard about the calculator (with optional details) and the language you used. The calculator also sends the results it worked out, such as your yearly kWh and CO₂, and the version of its numbers.</li>
+        <li><strong>Feedback, if you give it:</strong> a rating from 1 to 5 and an optional comment.</li>
+        <li><strong>We never ask for your name, email, phone number or student ID.</strong> The two text boxes (the feedback comment and "more details") ask you not to include personal details. If one does anyway, we delete that response.</li>
+      </ul>
+
+      <h2>What our host records automatically</h2>
+      <ul>
+        <li>The site is hosted by <a href="https://www.netlify.com/privacy/">Netlify</a>. Like any website host, Netlify's servers receive your IP address and browser type when you open a page, and keep them in access logs for a short time.</li>
+        <li>When you send your results or feedback, Netlify Forms automatically saves your IP address, browser type, the page you came from and the time along with your answers. We can't turn this off. We don't use this information and never try to find out who anyone is, and we remove it before we analyze or share any results.</li>
+      </ul>
+
+      <h2>What stays on your device</h2>
+      <ul>
+        <li>Your language choice is saved in your browser, so the next page opens in the same language.</li>
+        <li>While you use the calculator, your answers are kept in that browser tab, so you can read another page and come back. They're cleared when you tap Start over, after you send, or when you close the tab.</li>
+        <li>The share image of your results is made on your device and is only shared if you choose to share it.</li>
+        <li>The site doesn't use cookies, analytics, ads or trackers.</li>
+      </ul>
+
+      <h2>Who sees the responses and how we use them</h2>
+      <ul>
+        <li>Only the three members of the Energiae team can see the responses, in our Netlify account.</li>
+        <li>We use them only for our class project: combined into totals, averages and percentages for our presentation. We never publish anyone's individual answers, and we don't sell or share the responses.</li>
+      </ul>
+
+      <h2>How long we keep them</h2>
+      <p>We'll delete all responses and feedback from Netlify by the end of the Fall 2026 semester, after our final presentation.</p>
+
+      <h2>Questions, or removing something</h2>
+      <p>Because responses are anonymous, we can't look up one person's answers. If you typed something personal in a text box, tell us through <a href="index.html#feedback">Give feedback</a> roughly what it said and when you sent it, and we'll delete it.</p>
+    </div>
+
+    <div lang="es" data-show-lang="es" hidden>
+      <h1>Política de privacidad</h1>
+      <p class="cite">Última actualización: 1 de octubre de 2026</p>
+      <p class="lede">Energiae es un proyecto estudiantil para IDH 2003 Honors Leadership Seminar en Miami Dade College, North Campus. Esta página explica qué recoge la calculadora, quién lo ve y qué hacemos con ello.</p>
+
+      <h2>Lo que te pedimos</h2>
+      <ul>
+        <li><strong>Tus respuestas:</strong> tus hábitos digitales (horas, pantallas, uso de IA, almacenamiento en la nube, dispositivos que cargas), si tu resultado fue mayor o menor de lo que esperabas, el compromiso que elegiste, dónde te enteraste de la calculadora (con detalles opcionales) y el idioma que usaste. La calculadora también envía los resultados que calculó, como tus kWh y tu CO₂ al año, y la versión de sus números.</li>
+        <li><strong>Tu opinión, si la das:</strong> una calificación del 1 al 5 y un comentario opcional.</li>
+        <li><strong>Nunca te pedimos tu nombre, correo, teléfono ni número de estudiante.</strong> Las dos casillas de texto (el comentario y "más detalles") te piden no incluir datos personales. Si alguien los incluye de todos modos, borramos esa respuesta.</li>
+      </ul>
+
+      <h2>Lo que nuestro proveedor registra automáticamente</h2>
+      <ul>
+        <li>El sitio está alojado en <a href="https://www.netlify.com/privacy/">Netlify</a>. Como cualquier proveedor de sitios web, los servidores de Netlify reciben tu dirección IP y el tipo de navegador cuando abres una página, y los guardan en sus registros por poco tiempo.</li>
+        <li>Cuando envías tus resultados o tu opinión, Netlify Forms guarda automáticamente tu dirección IP, el tipo de navegador, la página de la que venías y la hora junto con tus respuestas. No podemos desactivarlo. No usamos esa información ni intentamos saber quién es nadie, y la quitamos antes de analizar o compartir cualquier resultado.</li>
+      </ul>
+
+      <h2>Lo que se queda en tu dispositivo</h2>
+      <ul>
+        <li>Tu idioma se guarda en tu navegador, para que la siguiente página se abra en el mismo idioma.</li>
+        <li>Mientras usas la calculadora, tus respuestas se guardan en esa pestaña del navegador, para que puedas leer otra página y volver. Se borran cuando tocas Empezar de nuevo, después de enviar o al cerrar la pestaña.</li>
+        <li>La imagen para compartir tus resultados se crea en tu dispositivo y solo se comparte si tú decides compartirla.</li>
+        <li>El sitio no usa cookies, analíticas, anuncios ni rastreadores.</li>
+      </ul>
+
+      <h2>Quién ve las respuestas y cómo las usamos</h2>
+      <ul>
+        <li>Solo los tres integrantes del equipo Energiae pueden ver las respuestas, en nuestra cuenta de Netlify.</li>
+        <li>Las usamos solo para nuestro proyecto de clase: combinadas en totales, promedios y porcentajes para nuestra presentación. Nunca publicamos las respuestas de una persona, y no vendemos ni compartimos las respuestas.</li>
+      </ul>
+
+      <h2>Cuánto tiempo las guardamos</h2>
+      <p>Borraremos todas las respuestas y opiniones de Netlify antes de que termine el semestre de otoño de 2026, después de nuestra presentación final.</p>
+
+      <h2>Preguntas, o borrar algo</h2>
+      <p>Como las respuestas son anónimas, no podemos buscar las respuestas de una persona. Si escribiste algo personal en una casilla de texto, avísanos en <a href="index.html#feedback">Danos tu opinión</a> más o menos qué decía y cuándo lo enviaste, y lo borraremos.</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p class="wordmark wordmark-small">
+      <svg class="wordmark-bolt" viewBox="0 0 32 32" aria-hidden="true"><path d="M18 4 8 18h7l-2 10 11-15h-7z"/></svg>
+      Energiae
+    </p>
+    <p data-i18n="footer.project">The Hidden Energy Cost of the Digital World. A PBL project by Richard Canina, Isaac Suarez and Lucas Alvarado for IDH 2003 Honors Leadership Seminar, Miami Dade College North Campus.</p>
+    <p class="footer-links"><a href="index.html" data-i18n="footer.tryCalc">Try the calculator</a><a href="about.html" data-i18n="footer.about">About the numbers and sources</a><a href="why-it-matters.html" data-i18n="nav.why">Why it matters</a><a href="index.html#feedback" data-i18n="footer.feedback">Give feedback</a></p>
+  </footer>
+
+  <script src="data/coefficients.js"></script>
+  <script src="data/strings.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
