@@ -30,8 +30,8 @@
 
 const COEFFICIENTS = {
   // Bump this whenever a number changes, so submitted data can be grouped by model.
-  // v2 (2026-09-30): added the TV or monitor you watch or game on (section 4b), studying and
-  // browsing online (browsingMbps), and Google AI summaries counted as AI text prompts.
+  // v2 (2026-09-30): added the TV or monitor you watch or game on (section 4b), studying, working
+  // and browsing online (browsingMbps), and Google AI summaries counted as AI text prompts.
   modelVersion: "2026-09-v2",
 
   /* ------------------------------------------------------------------ */
@@ -117,7 +117,8 @@ const COEFFICIENTS = {
     // Confidence: MEDIUM (an assumption). VERIFY.
     gamingMbps: 0,
 
-    // Studying online (homework sites, e-books) and browsing (Google, library databases):
+    // Studying online (homework sites, e-books), working online (email, documents; video calls are
+    // counted separately with callsMbps) and browsing (Google, library databases):
     // web pages move little data compared with video, so, as for gaming, we set the extra data
     // term to 0 and count only the always-on network share plus data centers for each hour.
     // Confidence: MEDIUM (an assumption). Pages with video would add a little. VERIFY.

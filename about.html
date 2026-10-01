@@ -95,9 +95,12 @@
       PC: <span data-c="gamingDeviceWatts.pc"></span> W + monitor <span data-c="screenWatts.monitor"></span> W → <span data-calc="whGamingPC" data-digits="2"></span> Wh per hour
     </div>
 
-    <h3>Studying and browsing</h3>
-    <div class="formula">kWh/year = (studying + browsing hours/day) × 365 × online Wh per hour at <span data-c="dataRates.browsingMbps"></span> Mbps extra (<span data-calc="whBrowsing" data-digits="2"></span> Wh) ÷ 1,000</div>
-    <p>Web pages move little data compared with video, so, as for gaming, we count only the network's always-on share and the data centers for each hour. An hour of homework online comes out about the same as an hour of scrolling social media.</p>
+    <h3>Studying, browsing and working online</h3>
+    <div class="formula">
+      Studying and browsing: kWh/year = (studying + browsing hours/day) × 365 × online Wh per hour at <span data-c="dataRates.browsingMbps"></span> Mbps extra (<span data-calc="whBrowsing" data-digits="2"></span> Wh) ÷ 1,000<br>
+      Working online: kWh/year = work hours/day × 365 × <span data-calc="whBrowsing" data-digits="2"></span> Wh ÷ 1,000 (work video calls are counted under video calls)
+    </div>
+    <p>Web pages and documents move little data compared with video, so, as for gaming, we count only the network's always-on share and the data centers for each hour. An hour of homework or work online comes out about the same as an hour of scrolling social media.</p>
 
     <h3>Video calls</h3>
     <div class="formula">kWh/year = hours/day × 365 × online Wh per hour at <span data-c="dataRates.callsMbps"></span> Mbps up + down (<span data-calc="whCalls" data-digits="2"></span> Wh) ÷ 1,000</div>
@@ -131,9 +134,9 @@
     <h2>Assumptions and limits</h2>
     <ul>
       <li><strong>No double counting.</strong> The electricity that charges your phone, laptop and tablet is counted only under "Charging devices." Streaming, music, social media, calls and phone gaming count only the network and data centers. A TV or monitor is plugged in, so it's never in "Charging devices"; its power is added to video when you watch on it.</li>
-      <li><strong>TVs and monitors are a typical certified model:</strong> the median of the ENERGY STAR certified models (about 55-inch TVs and 27-inch monitors). A bigger screen uses more, and a smaller one less. For gaming we assume a console plays on a TV and a PC on one monitor. The desktop computer a monitor is plugged into is not counted, and neither is a monitor used for studying or browsing (only video and gaming ask about screens).</li>
+      <li><strong>TVs and monitors are a typical certified model:</strong> the median of the ENERGY STAR certified models (about 55-inch TVs and 27-inch monitors). A bigger screen uses more, and a smaller one less. For gaming we assume a console plays on a TV and a PC on one monitor. The desktop computer a monitor is plugged into is not counted, and neither is a monitor used for studying, work or browsing (only video and gaming ask about screens).</li>
       <li><strong>Home Wi-Fi is assumed.</strong> Mobile data networks use different numbers, and we don't model them separately.</li>
-      <li><strong>Data-center energy for video</strong> is also used for music, social media, studying, browsing, calls and gaming, because we found no separate published figure. Audio probably needs less.</li>
+      <li><strong>Data-center energy for video</strong> is also used for music, social media, studying, working, browsing, calls and gaming, because we found no separate published figure. Audio probably needs less.</li>
       <li><strong>Florida's grid is used for all CO₂,</strong> even though many data centers that serve you are in other states. Grid losses (about <span data-c="gridLossPct" data-digits="0"></span>%) are not added.</li>
       <li><strong>Overlapping activities are allowed.</strong> If you listen to music while scrolling, both are counted.</li>
       <li><strong>Averages hide big differences.</strong> A high-end gaming PC, a long AI "reasoning" chat or a 4K TV can use far more than our middle values.</li>
