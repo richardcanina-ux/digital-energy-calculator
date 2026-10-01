@@ -52,7 +52,7 @@ Then open <http://localhost:8000>.
 
 Netlify dashboard → your project → **Forms** → **pledge-responses** → **Download as CSV**.
 
-**Before you analyze or share the CSV:** Netlify Forms automatically adds `ip`, `user_agent`, `referrer` and `created_at` columns to every submission (it can't be turned off). `ip` is personal information, so **delete the `ip`, `user_agent` and `referrer` columns** from your copy first. The privacy policy (`privacy.html`) promises this, and also promises that all responses and feedback are deleted from Netlify by the end of the Fall 2026 semester (Forms → each form → delete the submissions, or delete the form).
+**Before you analyze or share the CSV:** Netlify Forms automatically adds `ip`, `user_agent`, `referrer` and `created_at` columns to every submission (it can't be turned off). `ip` is personal information, so **delete the `ip`, `user_agent` and `referrer` columns** from your copy first. The privacy policy (`privacy.html`) promises this.
 
 Each row is one completed calculator. Columns:
 

@@ -535,8 +535,9 @@ if (form) {
   // habits_changed (sent with the form) counts how many of the 19 habit answers differ from where they started;
   // (ticking a screen for video counts, because its hours go from 0 to something);
   // 0 means they didn't change anything, so those rows can be left out of the analysis.
-  const unchangedNote = document.getElementById("habit-unchanged");
-  let unchangedWarned = false; // the gentle note shows once; tapping See my results again continues
+  // Before the first results, if nothing changed, a pop-up asks "Are these really your habits?" (centered, page dimmed).
+  const unchangedDialog = document.getElementById("unchanged-dialog");
+  let unchangedConfirmed = false; // they answered "Yes, show my results", so don't ask again
 
   // The starting value from the HTML (not the current value), so a restored or edited form still compares correctly.
   function startValue(name) {
@@ -554,9 +555,29 @@ if (form) {
     }).length;
   }
 
-  function hideUnchangedNote() {
-    unchangedNote.hidden = true;
+  // Opens the pop-up. A browser without <dialog> support gets its own simple yes/no box instead.
+  function askAboutUnchanged() {
+    if (typeof unchangedDialog.showModal === "function") unchangedDialog.showModal();
+    else if (window.confirm(t("habits.unchanged"))) continueToResults();
   }
+
+  function continueToResults() {
+    unchangedConfirmed = true;
+    habitResults.click(); // the same "See my results" button; this time it goes straight through
+  }
+
+  document.getElementById("unchanged-continue").addEventListener("click", () => {
+    unchangedDialog.close();
+    continueToResults();
+  });
+  document.getElementById("unchanged-edit").addEventListener("click", () => {
+    unchangedDialog.close();
+    showHabitPage(0); // back to the first section, ready to change answers
+  });
+  // Tapping the dimmed area outside the box closes it, like Esc: they stay where they were.
+  unchangedDialog.addEventListener("click", (event) => {
+    if (event.target === unchangedDialog) unchangedDialog.close();
+  });
 
   /* ---------- keep answers while visiting about.html (this browser tab only) ---------- */
 
@@ -733,7 +754,6 @@ if (form) {
   // Any change to an answer: update the running total and remember the answers for this tab.
   form.addEventListener("input", () => {
     updateLiveTotal();
-    hideUnchangedNote(); // they're changing something, so the "nothing changed" note no longer fits
     saveAnswers();
   });
   form.addEventListener("change", saveAnswers);
@@ -775,14 +795,11 @@ if (form) {
       }
       // "See my results": every typed number must be valid first.
       if (target === "results" && !steps.habits.hidden && !sectionsAreValid(habitPages)) return;
-      // First time through with nothing changed: a gentle note first; tapping again continues.
-      if (target === "results" && !steps.habits.hidden && editBaseline === null && !unchangedWarned && habitsChanged() === 0) {
-        unchangedWarned = true;
-        unchangedNote.textContent = t("habits.unchanged");
-        unchangedNote.hidden = false;
+      // First time through with nothing changed: ask in a pop-up first ("Yes, show my results" continues).
+      if (target === "results" && !steps.habits.hidden && editBaseline === null && !unchangedConfirmed && habitsChanged() === 0) {
+        askAboutUnchanged();
         return;
       }
-      if (target === "results") hideUnchangedNote();
       if (target === "results") {
         const unchanged = lastResult && JSON.stringify(readInputs()) === JSON.stringify(lastResult.inputs);
         if (unchanged) document.getElementById("result-card").classList.add("is-settled");
@@ -1323,8 +1340,7 @@ if (form) {
     clearChoiceErrors(form);
     updateHeardDetails(); // the list is back to "Choose one", so the details box hides
     updateVideoScreens(); // no screens ticked again, so their sliders and the quality question hide
-    unchangedWarned = false;
-    hideUnchangedNote();
+    unchangedConfirmed = false; // the next person gets asked again
     editBaseline = null;
     updateLiveTotal();
     showHabitPage(0, { focus: false });
@@ -1345,7 +1361,6 @@ if (form) {
     form.querySelectorAll('input[type="range"]').forEach(updateSlider);
     updateHabitNav();
     updateLiveTotal();
-    if (!unchangedNote.hidden) unchangedNote.textContent = t("habits.unchanged");
     numberInputs.forEach((input) => {
       if (input.hasAttribute("aria-invalid")) checkNumber(input);
     });

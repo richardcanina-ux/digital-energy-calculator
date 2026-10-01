@@ -478,8 +478,25 @@ input[type="range"]::-moz-range-thumb {
 /* Running total while editing after the results */
 .habit-live { margin: 4px 0 0; color: var(--grid); font-size: var(--step--1); font-weight: 700; font-variant-numeric: tabular-nums; }
 /* "You haven't changed any answers yet" (once, before the first results) */
-.habit-unchanged { margin: 6px 0 2px; padding: 8px 12px; background: var(--white); border-left: 5px solid var(--volt); font-size: var(--step--1); font-weight: 600; }
-html:has(#habit-unchanged:not([hidden])) { scroll-padding-bottom: 200px; }
+/* "Nothing changed yet" pop-up: centered by the browser (showModal), with the page dimmed behind it */
+.confirm-dialog {
+  width: min(440px, calc(100% - 2 * var(--gutter)));
+  padding: 0; /* the padding is on .confirm-box, so a tap on the dialog itself means "outside the box" */
+  border: 0;
+  border-radius: 18px;
+  background: var(--white);
+  color: var(--ink);
+  box-shadow: 0 18px 48px rgba(16, 26, 74, 0.35);
+}
+.confirm-dialog::backdrop { background: rgba(16, 26, 74, 0.6); } /* dims everything else */
+.confirm-box { padding: 24px 22px 20px; border-top: 6px solid var(--volt); border-radius: 18px; }
+.confirm-box h2 { margin: 0 0 8px; font-size: var(--step-2); }
+.confirm-box p { margin: 0; font-size: var(--step-1); line-height: 1.4; }
+.confirm-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.confirm-actions .btn { flex: 1 1 100%; }
+.confirm-dialog[open] { animation: dialog-in 0.18s ease-out; }
+@keyframes dialog-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } }
+@media (prefers-reduced-motion: reduce) { .confirm-dialog[open] { animation: none; } }
 /* WCAG 2.4.11: keep keyboard-focused fields from hiding behind the pinned bar */
 html:has(#step-habits:not([hidden])) { scroll-padding-bottom: 140px; }
 html:has(#habit-live:not([hidden])) { scroll-padding-bottom: 170px; } /* the bar is one line taller while editing */

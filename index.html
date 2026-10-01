@@ -333,8 +333,6 @@
         <div class="habit-footer">
         <!-- Only when coming back from the results ("Edit my habits"), so it can't spoil the first reveal or the "expected" question. -->
         <p class="habit-live" id="habit-live" aria-live="polite" hidden></p>
-        <!-- Shown once if someone taps "See my results" without changing any answer; a second tap continues. -->
-        <p class="habit-unchanged" id="habit-unchanged" role="status" hidden></p>
         <div class="habit-nav">
           <div class="habit-dots" id="habit-dots" role="group" aria-label="Habit sections" data-i18n-aria="habits.dotsAria">
             <button type="button" class="habit-dot" data-page="1"></button>
@@ -545,6 +543,19 @@
         </div>
       </section>
     </form>
+
+    <!-- Pop-up when someone taps "See my results" without changing any habit (app.js opens it with showModal(),
+         which centers it and dims the rest of the page). It's outside the form so its buttons never submit anything. -->
+    <dialog class="confirm-dialog" id="unchanged-dialog" aria-labelledby="unchanged-title" aria-describedby="unchanged-text">
+      <div class="confirm-box">
+        <h2 id="unchanged-title" data-i18n="unchanged.title">Nothing changed yet</h2>
+        <p id="unchanged-text" data-i18n="habits.unchanged">You haven't changed any answers yet. Are these really your habits?</p>
+        <div class="confirm-actions">
+          <button type="button" class="btn btn-primary" id="unchanged-edit" data-i18n="unchanged.edit">Change my answers</button>
+          <button type="button" class="btn btn-quiet" id="unchanged-continue" data-i18n="unchanged.continue">Yes, show my results</button>
+        </div>
+      </div>
+    </dialog>
 
     <!--
       FEEDBACK: a second, separate Netlify form ("site-feedback"), so feedback never mixes with the research data.
