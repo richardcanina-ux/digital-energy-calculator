@@ -18,10 +18,12 @@ Team: Richard Canina (Leader + Website Builder), Isaac Suarez (Co-leader + Prese
 | `app.js` | Formulas, results, tips, pledges, form submission; also fills numbers on `about.html` and `why-it-matters.html` |
 | `data/coefficients.js` | **Every energy and emissions number**, each with its source, year, URL, range and confidence |
 | `data/strings.js` | **Every piece of text**, in English (`en`) and Spanish (`es`) |
-| `images/welcome-illustration.webp` | Welcome screen illustration (1000×667, transparent background, ~100 KB). If it's missing, the welcome screen simply shows without it |
-| `images/og-image.jpg` | Link preview picture (1200×630) shown when someone sends the site address in a text, WhatsApp, iMessage, LinkedIn or Discord |
+| `images/welcome-illustration.webp` | Welcome screen illustration (1000×667, transparent background, ~100 KB). **AI-generated with ChatGPT on September 29, 2026**, then converted to WebP. If it's missing, the welcome screen simply shows without it |
+| `images/og-image.jpg` | Link preview picture (1200×630) shown when someone sends the site address in a text, WhatsApp, iMessage, LinkedIn or Discord. Made from the welcome illustration plus the site's own text and colors |
 
 Plain HTML, CSS and JavaScript. No framework, no build step, no npm packages.
+
+**Copyright and license:** © 2026 Richard Canina, Isaac Suarez and Lucas Alvarado. All rights reserved. The repository is public so people can see how the calculator works, but there is deliberately no open-source license (the team decided this in October 2026), so the code, text and images may not be reused without permission.
 
 ## Run it locally
 
