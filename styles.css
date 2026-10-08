@@ -166,6 +166,7 @@ h1:focus, h2:focus { outline: none; } /* headings get focus only so screen reade
 .site-footer > * { max-width: calc(1120px - 2 * var(--gutter)); margin-left: auto; margin-right: auto; }
 .site-footer a { color: var(--volt); }
 .footer-disclaimer { color: rgba(221, 226, 251, 0.8); } /* "Not an official Miami Dade College website" */
+.footer-copyright { margin-top: 16px; color: rgba(221, 226, 251, 0.8); }
 .footer-links { display: flex; flex-wrap: wrap; gap: 8px 24px; }
 .footer-links a { padding: 8px 0; } /* bigger tap area */
 .wordmark-small { font-size: var(--step-1); color: var(--volt); margin-bottom: 8px; display: flex; }
