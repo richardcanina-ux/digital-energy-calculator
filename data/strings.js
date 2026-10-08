@@ -34,6 +34,7 @@ const STRINGS = {
     "footer.feedback": "Give feedback",
     "footer.tryCalc": "Try the calculator",
     "footer.privacy": "Privacy policy",
+    "footer.disclaimer": "A student class project. Not an official Miami Dade College website, and not run or endorsed by the college.",
     "about.englishOnly": "",
 
     /* ---------- welcome screen ---------- */
@@ -292,6 +293,7 @@ const STRINGS = {
     "footer.feedback": "Danos tu opinión",
     "footer.tryCalc": "Prueba la calculadora",
     "footer.privacy": "Política de privacidad",
+    "footer.disclaimer": "Proyecto estudiantil de clase. No es un sitio web oficial de Miami Dade College, ni lo administra ni lo respalda la institución.",
     "about.englishOnly": "Por ahora, esta página solo está en inglés. La calculadora está completamente en español.",
 
     /* ---------- pantalla de bienvenida ---------- */
