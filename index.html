@@ -333,10 +333,10 @@
           <!-- "Where did you hear about this?" is now asked before the results (on the last habit section),
                so it's saved with the results form even when someone doesn't go on to pledge. -->
           <div class="field select-field">
-            <label for="heard_from" data-i18n="heard.label">Where did you hear about this?</label>
+            <label for="heard_from" data-i18n="heard.label">Lastly, where did you hear about this?</label>
             <!-- The saved value is always the same short English code, whatever language is showing.
-                 The first five codes (Tabling, Honors College, INIT meeting, Other club, Other) are unchanged
-                 from the first version, so older and newer responses match. Groups only help people scan the list. -->
+                 The codes Tabling, Honors College, Other club and Other are unchanged from the first version, so older
+                 and newer responses match. "INIT meeting" was removed on Nov 18, 2026 (INIT counts as a club now). Groups only help people scan the list. -->
             <select id="heard_from" name="heard_from" required>
               <option value="" data-i18n="heard.choose">Choose one</option>
               <optgroup label="At Miami Dade College" data-i18n-label="heard.groupMdc">
@@ -345,8 +345,7 @@
                 <option value="Professor – email or course page" data-i18n="heard.profOnline" data-details>A professor's email or course page</option>
                 <option value="Department or chairperson" data-i18n="heard.department" data-details>A department chair or department email</option>
                 <option value="Honors College" data-i18n="heard.honors">Honors College</option>
-                <option value="INIT meeting" data-i18n="heard.init">INIT meeting</option>
-                <option value="Other club" data-i18n="heard.club" data-details>Another club or student organization</option>
+                <option value="Other club" data-i18n="heard.club" data-details>A club or student organization</option>
                 <option value="Campus event or presentation" data-i18n="heard.event" data-details>A campus event or presentation</option>
                 <option value="Flyer or poster" data-i18n="heard.flyer">A flyer or poster (QR code)</option>
               </optgroup>
