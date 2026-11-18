@@ -87,7 +87,7 @@
       </figure>
 
       <ul class="welcome-features">
-        <li><svg class="feature-icon" aria-hidden="true" focusable="false"><use href="#i-clock"></use></svg><span><strong data-i18n="welcome.f1t">In about two minutes</strong><span data-i18n="welcome.f1d">you'll see your yearly electricity use</span></span></li>
+        <li><svg class="feature-icon" aria-hidden="true" focusable="false"><use href="#i-clock"></use></svg><span><strong data-i18n="welcome.f1t">In about two minutes</strong><span data-i18n="welcome.f1d">you'll see your yearly electricity use in kWh, the unit on your power bill</span></span></li>
         <li><svg class="feature-icon" aria-hidden="true" focusable="false"><use href="#i-co2"></use></svg><span><strong data-i18n="welcome.f2t">Your CO₂ on Florida's grid</strong><span data-i18n="welcome.f2d">what that electricity puts in the air</span></span></li>
         <li><svg class="feature-icon" aria-hidden="true" focusable="false"><use href="#i-bulb"></use></svg><span><strong data-i18n="welcome.f3t">Tips for your biggest habits</strong><span data-i18n="welcome.f3d">and one habit you can change</span></span></li>
       </ul>
@@ -379,8 +379,15 @@
               </div>
             </div>
             <p class="meter-unit" aria-hidden="true" data-i18n="meter.unit">kWh of electricity a year</p>
+            <!-- Students kept asking what a kWh is: tap to open a one-line answer (numbers come from coefficients.js). -->
+            <details class="kwh-help">
+              <summary data-i18n="kwh.q">What's a kWh?</summary>
+              <p data-i18n-html="kwh.a"></p>
+            </details>
 
             <dl class="card-stats">
+              <!-- kWh × the average price a Florida home pays (EIA Table 5A). Not "your bill": part of it is data centers and networks. -->
+              <div><dt data-i18n="stat.cost">Cost at Florida home prices</dt><dd><span id="cost-main">$<span id="cost-usd"></span> <span data-i18n="unit.aYear">a year</span></span><span id="cost-tiny" data-i18n="cost.tiny" hidden>less than $1 a year</span></dd></div>
               <div><dt data-i18n="stat.co2">CO₂ on Florida's grid</dt><dd><span id="co2-kg"></span> kg</dd></div>
               <div><dt data-i18n="stat.phone">Same as charging a phone</dt><dd><span id="phone-charges"></span> <span data-i18n="unit.times">times</span></dd></div>
               <div><dt data-i18n="stat.home">Powering a Florida home</dt><dd><span id="home-days"></span> <span data-i18n="unit.days">days</span></dd></div>

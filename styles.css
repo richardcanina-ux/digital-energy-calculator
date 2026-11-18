@@ -595,6 +595,37 @@ html:has(#habit-live:not([hidden])) { scroll-padding-bottom: 170px; } /* the bar
 
 .meter-unit { margin: 6px 0 12px; font-weight: 600; }
 
+/* "What's a kWh?": tap to open a one-line answer under the big number */
+.kwh-help { margin: -8px 0 12px; font-size: var(--step--1); }
+.kwh-help summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px; /* easy to tap */
+  cursor: pointer;
+  list-style: none;
+  color: var(--volt);
+  font-weight: 600;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+.kwh-help summary::-webkit-details-marker { display: none; }
+.kwh-help summary::before {
+  content: "?";
+  display: inline-grid;
+  place-items: center;
+  width: 1.3em;
+  height: 1.3em;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-size: 0.85em;
+  line-height: 1;
+  text-decoration: none;
+}
+.kwh-help[open] summary::before { content: "×"; }
+.kwh-help p { margin: 2px 0 0; max-width: 52ch; color: rgba(255, 255, 255, 0.92); animation: details-in 0.2s ease-out; }
+@media (prefers-reduced-motion: reduce) { .kwh-help p { animation: none; } }
+
 .card-stats { display: grid; gap: 6px; margin: 0 0 14px; }
 .card-stats div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; border-top: 1px solid rgba(255, 255, 255, 0.25); padding-top: 6px; }
 .card-stats dt { font-size: var(--step--1); }

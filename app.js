@@ -57,6 +57,21 @@ function floridaHomeKWhPerDay() {
   return (C.comparisons.floridaHomeKWhPerMonth * 12) / DAYS_PER_YEAR;
 }
 
+// How many phone charges are in 1 kWh, rounded to the nearest 10 ("about 50"), for "What's a kWh?".
+function phoneChargesPerKWh() {
+  return Math.round(1 / C.comparisons.phoneChargeKWh / 10) * 10;
+}
+
+// kWh × cents per kWh ÷ 100 = dollars, at the average price a Florida home pays (EIA Table 5A).
+function dollarsAtHomePrice(kwh) {
+  return (kwh * C.comparisons.floridaHomeCentsPerKWh) / 100;
+}
+
+// "about $1,414", or "less than $1" for a few cents (so it never reads "$0" when it isn't zero).
+function moneyPhrase(dollars) {
+  return dollars > 0 && dollars < 1 ? t("money.tiny") : t("money.about", { usd: fmt(dollars) });
+}
+
 // Average power: spreading a year's kWh evenly over every hour of the year.
 // kWh × 1,000 ÷ 8,760 hours = watts, all day, every day.
 function averageWatts(kwhPerYear) {
@@ -930,6 +945,12 @@ if (form) {
     renderTips(renderBars(result.kwh));
 
     setMeter(meter, result.total, true);
+    // Cost: "$20 a year", or "less than $1 a year" for a few cents
+    const dollars = dollarsAtHomePrice(result.total);
+    const tinyCost = dollars > 0 && dollars < 1;
+    document.getElementById("cost-main").hidden = tinyCost;
+    document.getElementById("cost-tiny").hidden = !tinyCost;
+    countUp(document.getElementById("cost-usd"), tinyCost ? 0 : dollars, 0, REVEAL.countUpDelayMs);
     countUp(document.getElementById("co2-kg"), result.co2, 0, REVEAL.countUpDelayMs);
     countUp(document.getElementById("phone-charges"), result.total / C.comparisons.phoneChargeKWh, 0, REVEAL.countUpDelayMs);
     countUp(document.getElementById("home-days"), result.total / floridaHomeKWhPerDay(), 1, REVEAL.countUpDelayMs);
@@ -1069,15 +1090,19 @@ if (form) {
     text(`${fmt(watts, watts < 10 ? 1 : 0)} W, 24/7`, cx, cy + 104, { size: 26, weight: 600, align: "center", maxWidth: 200 });
 
     text(t("meter.unit"), pad, top + bh + 52, { size: 34, weight: 600 });
+    // What a kWh is, for people who only see the image
+    text(t("share.kwh", { charges: phoneChargesPerKWh() }), pad, top + bh + 94, { size: 26, fill: soft });
 
-    // Three comparisons
+    // Four comparisons (cost first: money is the one everyone understands)
+    const dollars = dollarsAtHomePrice(result.total);
     const stats = [
+      [t("stat.cost"), dollars > 0 && dollars < 1 ? t("cost.tiny") : `$${fmt(dollars)} ${t("unit.aYear")}`],
       [t("stat.co2"), `${fmt(result.co2)} kg`],
       [t("stat.phone"), `${fmt(result.total / C.comparisons.phoneChargeKWh)} ${t("unit.times")}`],
       [t("stat.home"), `${fmt(result.total / floridaHomeKWhPerDay(), 1)} ${t("unit.days")}`],
     ];
     stats.forEach(([label, value], k) => {
-      const y = 530 + k * 74;
+      const y = 560 + k * 70;
       ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
       ctx.fillRect(pad, y, W - 2 * pad, 2);
       const valueWidth = text(value, W - pad, y + 50, { size: 40, weight: 700, align: "right", maxWidth: 380 });
@@ -1085,14 +1110,14 @@ if (form) {
     });
 
     // Biggest categories (up to 5, so the image stays readable)
-    text(t("results.where"), pad, 824, { size: 38, weight: 700, family: display });
+    text(t("results.where"), pad, 888, { size: 38, weight: 700, family: display });
     const sorted = CATEGORIES.map((c) => ({ id: c.id, value: result.kwh[c.id] }))
       .filter((c) => c.value > 0)
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
     const max = Math.max(...sorted.map((c) => c.value), 0.0001);
     sorted.forEach((c, k) => {
-      const y = 852 + k * 66;
+      const y = 910 + k * 62;
       const valueWidth = text(fmtSmall(c.value), W - pad, y + 32, { size: 30, weight: 600, align: "right", maxWidth: 300 });
       text(t(`cat.${c.id}`), pad, y + 32, { size: 30, maxWidth: W - 2 * pad - valueWidth - 24 });
       fillBox(pad, y + 44, W - 2 * pad, 10, 5, "rgba(255, 255, 255, 0.18)");
@@ -1319,6 +1344,7 @@ if (form) {
         students: fmt(COLLECTIVE_STUDENTS),
         kwh: fmtKWh(together),
         kg: fmtKWh(kgCO2(together)),
+        money: moneyPhrase(dollarsAtHomePrice(together)),
         days: fmtKWh(together / floridaHomeKWhPerDay()),
       });
     } else {
@@ -1460,6 +1486,8 @@ const CALCULATED = {
   phonePerYear: () => C.devices.phoneKWhPerCharge * DAYS_PER_YEAR,
   kgPerKWh: () => kgCO2(1),
   homePerDay: () => floridaHomeKWhPerDay(),
+  chargesPerKWh: () => phoneChargesPerKWh(), // "about 50 phone charges" in 1 kWh
+  homeDollarsPerYear: () => dollarsAtHomePrice(C.comparisons.floridaHomeKWhPerMonth * 12),
   imageVsText: () => C.ai.imageWh / C.ai.textPromptWh,
   hoursPerYear: () => HOURS_PER_DAY * DAYS_PER_YEAR,
 };

@@ -57,6 +57,10 @@
     <p class="lede">Every number in the calculator lives in one file, <code>data/coefficients.js</code>, next to its source. This page reads from that same file, so the numbers here always match the calculator.</p>
     <p>These are estimates for a typical day, not measurements of your devices. We picked a middle value from published research for each factor and list the range researchers report.</p>
 
+    <h2>What's a kWh?</h2>
+    <p>A kilowatt-hour (kWh) is the unit your power bill uses. It's 1,000 watts running for one hour, or about <span data-calc="chargesPerKWh"></span> phone charges. Our formulas count in watt-hours (Wh) first, and 1,000 Wh = 1 kWh.</p>
+    <p>For scale: an average Florida home uses about <span data-c="comparisons.floridaHomeKWhPerMonth" data-digits="0"></span> kWh a month and pays about <span data-c="comparisons.floridaHomeCentsPerKWh" data-digits="1"></span>¢ for each one (2024).</p>
+
     <h2>The main idea: hours matter more than quality</h2>
     <p>You might have seen headlines saying one hour of streaming uses as much energy as boiling several kettles. Those numbers multiply the data you download by an average "energy per gigabyte." With that method, one hour of HD video would use about <span data-calc="oldMethodHD" data-digits="0"></span> Wh.</p>
     <p>The International Energy Agency and the Carbon Trust showed that method overstates the network's share. Internet equipment uses most of its power just by being switched on, whether you stream or not. More data adds only a little. So we use their <strong>power model</strong>: every hour you spend online gets a fair share of the network's always-on power, plus a small extra for the data you move. With it, an hour of HD video comes to about <span data-calc="whHD" data-digits="1"></span> Wh.</p>
@@ -122,6 +126,7 @@
     <h3>CO₂ and comparisons</h3>
     <div class="formula">
       kg CO₂ = kWh × <span data-c="floridaLbCO2ePerMWh"></span> lb per MWh × <span data-c="kgPerLb"></span> kg per lb ÷ 1,000 = kWh × <span data-calc="kgPerKWh" data-digits="3"></span><br>
+      Cost at Florida home prices ($) = kWh × <span data-c="comparisons.floridaHomeCentsPerKWh" data-digits="2"></span>¢ ÷ 100<br>
       Phone charges = kWh ÷ <span data-c="comparisons.phoneChargeKWh"></span><br>
       Days of a Florida home = kWh ÷ (<span data-c="comparisons.floridaHomeKWhPerMonth" data-digits="0"></span> kWh per month × 12 ÷ 365 = <span data-calc="homePerDay" data-digits="1"></span> kWh per day)<br>
       Average power ("W, 24/7" next to the spinning disk) = kWh × 1,000 ÷ <span data-calc="hoursPerYear" data-digits="0"></span> hours in a year
@@ -138,6 +143,7 @@
       <li><strong>Home Wi-Fi is assumed.</strong> Mobile data networks use different numbers, and we don't model them separately.</li>
       <li><strong>Data-center energy for video</strong> is also used for music, social media, studying, working, browsing, calls and gaming, because we found no separate published figure. Audio probably needs less.</li>
       <li><strong>Florida's grid is used for all CO₂,</strong> even though many data centers that serve you are in other states. Grid losses (about <span data-c="gridLossPct" data-digits="0"></span>%) are not added.</li>
+      <li><strong>The dollar figure is a comparison, not your bill.</strong> It prices your total at the average a Florida home paid in 2024 (<span data-c="comparisons.floridaHomeCentsPerKWh" data-digits="2"></span>¢ per kWh, homes only, not businesses). Much of your total is used by networks and data centers, often in other states, so you don't pay all of it on your own bill.</li>
       <li><strong>Overlapping activities are allowed.</strong> If you listen to music while scrolling, both are counted.</li>
       <li><strong>Averages hide big differences.</strong> A high-end gaming PC, a long AI "reasoning" chat or a 4K TV can use far more than our middle values.</li>
       <li><strong>No personal data asked for.</strong> We never ask for names, emails or student IDs. Our host, Netlify, automatically records the IP address and browser type sent with each response; we don't use them and remove them before analysis. See the <a href="privacy.html">privacy policy</a>.</li>
@@ -168,7 +174,7 @@
           <tr><td>TV and monitor power while on</td><td><a href="https://data.energystar.gov/Active-Specifications/ENERGY-STAR-Certified-Televisions/pd96-rr3d">U.S. EPA ENERGY STAR Certified Televisions dataset</a>; <a href="https://data.energystar.gov/Active-Specifications/ENERGY-STAR-Certified-Displays/qbg3-d468">ENERGY STAR Certified Displays dataset</a> (medians of certified models, queried Sept. 2026)</td><td>Medium</td></tr>
           <tr><td>Laptop and tablet yearly energy</td><td><a href="https://data.energystar.gov/Active-Specifications/ENERGY-STAR-Certified-Computers-V9-0/rxdj-2c88">U.S. EPA ENERGY STAR Certified Computers V9.0 dataset</a> (median of certified models, queried Sept. 2026)</td><td>Medium-high</td></tr>
           <tr><td>Florida CO₂ rate, electricity mix and grid losses</td><td><a href="https://www.epa.gov/egrid/summary-data">U.S. EPA eGRID2023 (2025)</a></td><td>High</td></tr>
-          <tr><td>Average Florida home electricity</td><td><a href="https://www.eia.gov/electricity/sales_revenue_price/">U.S. EIA, Electric Sales, Revenue, and Average Price, Table 5A (2024 data)</a></td><td>High</td></tr>
+          <tr><td>Average Florida home electricity use and price</td><td><a href="https://www.eia.gov/electricity/sales_revenue_price/">U.S. EIA, Electric Sales, Revenue, and Average Price, Table 5A (2024 data)</a></td><td>High</td></tr>
           <tr><td>Global data-center growth and AI</td><td><a href="https://www.iea.org/reports/key-questions-on-energy-and-ai/executive-summary">IEA, Key Questions on Energy and AI (2026)</a></td><td>High</td></tr>
         </tbody>
       </table>

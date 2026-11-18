@@ -302,6 +302,15 @@ const COEFFICIENTS = {
     //   https://www.eia.gov/electricity/sales_revenue_price/
     // Confidence: HIGH.
     floridaHomeKWhPerMonth: 1104.135,
+
+    // Average price a Florida HOME pays: 14.136787 cents per kWh (2024).
+    // Source: same EIA Table 5A, Florida row, "Average Price (cents/kWh)" (residential only).
+    //   https://www.eia.gov/electricity/sales_revenue_price/xls/table_5A.xlsx
+    // Not EIA's Florida state profile price (that one averages homes, businesses and industry).
+    // Used for "Cost at Florida home prices". Part of the energy is used in data centers and networks,
+    // so it is not all on the student's own bill; the wording says "at Florida home prices" for that reason.
+    // Confidence: HIGH.
+    floridaHomeCentsPerKWh: 14.136787,
   },
 
   /* ------------------------------------------------------------------ */
