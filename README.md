@@ -52,11 +52,19 @@ Then open <http://localhost:8000>.
 
 ## Export the responses
 
-Netlify dashboard → your project → **Forms** → **pledge-responses** → **Download as CSV**.
+Netlify dashboard → your project → **Forms** → **results-responses** and **pledge-responses** → **Download as CSV** (one file each).
+
+**Two forms (since Nov 18, 2026):**
+
+- **`results-responses`**: sent automatically the first time someone taps **See my results** in a visit (a note next to the button says so). One row per person who reached their results, even if they left without pledging. Columns: `response_id`, the habit columns, `heard_from`, `heard_details`, the results columns (`video_hours`, `kwh_*`, `co2_kg_total`, `top_category`), `habits_changed`, `model_version`, `language`. No `expectation` or `pledge`. If they later edit their habits, this row keeps their *first* answers.
+- **`pledge-responses`**: sent when they tap **Send my pledge**, with everything (the table below), including their *final* answers and the same `response_id`.
+- **Matching:** join the two files on `response_id`. A results row with no pledge row = saw their results but didn't pledge, so pledge rate = pledge rows with a `response_id` ÷ results rows. For habits and totals, use the pledge row when there is one (final answers), otherwise the results row. Pledge rows sent before Nov 18 have no `response_id` and no results row.
+- `response_id` is a random 32-character code made in the browser for each visit ("Start over" makes a new one). It isn't linked to the person, device or any account.
+- `heard_from` is now asked on the last habit section (before the results), so every results row has it.
 
 **Before you analyze or share the CSV:** Netlify Forms automatically adds `ip`, `user_agent`, `referrer` and `created_at` columns to every submission (it can't be turned off). `ip` is personal information, so **delete the `ip`, `user_agent` and `referrer` columns** from your copy first. The privacy policy (`privacy.html`) promises this.
 
-Each row is one completed calculator. Columns:
+In `pledge-responses`, each row is one completed calculator. Columns:
 
 | Column | Meaning |
 |---|---|
@@ -72,6 +80,7 @@ Each row is one completed calculator. Columns:
 | `habits_changed` | How many of the 19 habit answers they changed from where the form starts (0 to 19). Ticking a screen for video counts as a change. **0 means they clicked straight through**, so their numbers are just the starting values: leave those rows out of the analysis. (Before their first results, anyone who hasn't changed anything sees a note asking "Are these really your habits?" and has to tap again to continue.) Empty in rows sent before this column was added |
 | `model_version` | Which version of `coefficients.js` produced the numbers. `2026-09-v1` didn't count TVs, monitors, studying, working or browsing; `2026-09-v2` adds the TV or monitor for video, a TV for console gaming, a monitor for PC gaming, and studying, working and browsing online; `2026-10-v3` asks for video hours on each screen (people can pick several) and takes the "1 hour less video" pledge from each screen in proportion. Compare the groups carefully |
 | `language` | `en` or `es`: the language they used |
+| `response_id` | Random code for this visit, also in `results-responses`, to match the two rows. Empty before Nov 18, 2026 |
 
 No names, emails, student IDs or other personal information are collected. A hidden `bot-field` catches spam bots; Netlify drops submissions that fill it in.
 

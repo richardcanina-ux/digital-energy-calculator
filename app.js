@@ -603,6 +603,11 @@ if (form) {
     "study_hours", "work_hours", "browse_hours", "calls_hours", "ai_prompts", "ai_images", "cloud_gb", "phones", "laptops", "tablets"];
   const SAVED_FIELDS = [...HABIT_FIELDS, "expectation", "pledge", "heard_from", "heard_details"];
 
+  // One random code per visit, sent with both forms so a pledge row can be matched to its results row.
+  // It's made in the browser and says nothing about the person or device. "Start over" makes a new one.
+  let responseId = null;
+  let resultsSent = false; // the results form goes once per visit (editing habits later doesn't send it again)
+
   function saveAnswers() {
     const step = Object.keys(steps).find((key) => !steps[key].hidden);
     try {
@@ -612,7 +617,7 @@ if (form) {
       }
       const values = Object.fromEntries(SAVED_FIELDS.map((name) => [name, form.elements[name].value]));
       const watch = watchChecks.filter((box) => box.checked).map((box) => box.value); // the ticked screens
-      sessionStorage.setItem(SAVE_KEY, JSON.stringify({ values, watch, step, page: habitPage, baseline: editBaseline }));
+      sessionStorage.setItem(SAVE_KEY, JSON.stringify({ values, watch, step, page: habitPage, baseline: editBaseline, responseId, resultsSent }));
     } catch (e) {
       // storage can be blocked (private mode); the calculator still works, it just can't pick up where it left off
     }
@@ -649,6 +654,8 @@ if (form) {
     updateOverlapNote();
     updateHeardDetails();
     editBaseline = typeof saved.baseline === "number" ? saved.baseline : null;
+    responseId = typeof saved.responseId === "string" ? saved.responseId : null;
+    resultsSent = saved.resultsSent === true;
     const step = !goHome && ["habits", "results", "pledge"].includes(saved.step) ? saved.step : "welcome";
     showHabitPage(step === "habits" ? Number(saved.page) || 0 : 0, { focus: false });
     updateLiveTotal();
@@ -663,6 +670,7 @@ if (form) {
   const habitDots = [...document.querySelectorAll(".habit-dot")];
   const habitNext = document.getElementById("habit-next");
   const habitResults = document.getElementById("habit-results");
+  const heardBlock = document.getElementById("heard-block"); // "Where did you hear about this?", last section only
   let habitPage = 0; // 0 = first section
 
   const sectionName = (k) => habitPages[k].querySelector("legend").textContent;
@@ -673,6 +681,7 @@ if (form) {
     const last = habitPage === total - 1;
     habitNext.hidden = last;
     habitResults.hidden = !last; // "See my results" only on the last section
+    heardBlock.hidden = !last; // and the last question before the results goes with it
     if (!last) document.getElementById("habit-next-label").textContent = t("habits.nextTo", { section: sectionName(habitPage + 1) });
     document.getElementById("habit-count").textContent = t("habits.count", { n: habitPage + 1, total });
     habitDots.forEach((dot, k) => {
@@ -810,6 +819,8 @@ if (form) {
       }
       // "See my results": every typed number must be valid first.
       if (target === "results" && !steps.habits.hidden && !sectionsAreValid(habitPages)) return;
+      // ...and "Where did you hear about this?" must be answered (it's on the last section, next to the button).
+      if (target === "results" && !steps.habits.hidden && !checkChoice(form.elements.heard_from)) return;
       // First time through with nothing changed: ask in a pop-up first ("Yes, show my results" continues).
       if (target === "results" && !steps.habits.hidden && editBaseline === null && !unchangedConfirmed && habitsChanged() === 0) {
         askAboutUnchanged();
@@ -819,6 +830,7 @@ if (form) {
         const unchanged = lastResult && JSON.stringify(readInputs()) === JSON.stringify(lastResult.inputs);
         if (unchanged) document.getElementById("result-card").classList.add("is-settled");
         else renderResults();
+        if (!steps.habits.hidden) sendResultsOnce(); // first time from the habits: save this visit's answers
       }
       if (target === "pledge") {
         if (!stepIsValid(steps.results)) return;
@@ -1280,6 +1292,39 @@ if (form) {
     set("heard_details", form.elements.heard_details.value.trim());
     set("model_version", C.modelVersion);
     set("language", lang); // "en" or "es": which language they used
+    set("response_id", getResponseId());
+  }
+
+  // Random, made in this browser tab: not linked to the person, the device or any account.
+  function getResponseId() {
+    if (!responseId) {
+      const bytes = crypto.getRandomValues(new Uint8Array(16));
+      responseId = [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+    return responseId;
+  }
+
+  // The fields the results form sends: habits, where they heard about it, the results, and the response code.
+  // (Not the "expected" answer or the pledge: those come later, with the pledge form.)
+  const RESULTS_FORM_FIELDS = ["response_id", ...HABIT_FIELDS, "heard_from", "heard_details", "video_hours", "kwh_total", "co2_kg_total",
+    ...CATEGORIES.map((c) => `kwh_${c.id}`), "top_category", "habits_changed", "model_version", "language"];
+
+  // Sends the "results-responses" form the first time someone sees their results in this visit.
+  // Quietly: if it fails (no signal), the results still show, and it tries again next time they tap "See my results".
+  function sendResultsOnce() {
+    if (resultsSent || !lastResult) return;
+    fillHiddenFields(null); // the same numbers the pledge form uses (no pledge yet)
+    const all = new FormData(form);
+    const data = new FormData();
+    data.set("form-name", "results-responses");
+    data.set("bot-field", all.get("bot-field") || "");
+    RESULTS_FORM_FIELDS.forEach((name) => data.set(name, all.get(name) ?? ""));
+    resultsSent = true; // set now, so a double tap can't send it twice
+    saveAnswers();
+    postToNetlify(data).catch(() => {
+      resultsSent = false;
+      saveAnswers();
+    });
   }
 
   // Everything the form sends. When no pledge fit, the disabled radios send nothing, so we add pledge=none.
@@ -1368,6 +1413,8 @@ if (form) {
     updateVideoScreens(); // no screens ticked again, so their sliders and the quality question hide
     unchangedConfirmed = false; // the next person gets asked again
     editBaseline = null;
+    responseId = null; // the next person is a new response
+    resultsSent = false;
     updateLiveTotal();
     showHabitPage(0, { focus: false });
     showStep("welcome");

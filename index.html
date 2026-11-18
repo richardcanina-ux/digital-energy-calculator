@@ -328,6 +328,51 @@
 
         <p class="overlap-note" id="overlap-note" data-i18n="habits.overlap" hidden>That adds up to more than 24 hours. That's fine if you do some things at the same time.</p>
 
+        <!-- Last section only (app.js): the last question before the results, and a note that "See my results" sends the answers. -->
+        <div class="heard-block" id="heard-block" hidden>
+          <!-- "Where did you hear about this?" is now asked before the results (on the last habit section),
+               so it's saved with the results form even when someone doesn't go on to pledge. -->
+          <div class="field select-field">
+            <label for="heard_from" data-i18n="heard.label">Where did you hear about this?</label>
+            <!-- The saved value is always the same short English code, whatever language is showing.
+                 The first five codes (Tabling, Honors College, INIT meeting, Other club, Other) are unchanged
+                 from the first version, so older and newer responses match. Groups only help people scan the list. -->
+            <select id="heard_from" name="heard_from" required>
+              <option value="" data-i18n="heard.choose">Choose one</option>
+              <optgroup label="At Miami Dade College" data-i18n-label="heard.groupMdc">
+                <option value="Tabling – North Campus" data-i18n="heard.tabling">Tabling – North Campus</option>
+                <option value="Professor – in class" data-i18n="heard.profClass" data-details>A professor, in class</option>
+                <option value="Professor – email or course page" data-i18n="heard.profOnline" data-details>A professor's email or course page</option>
+                <option value="Department or chairperson" data-i18n="heard.department" data-details>A department chair or department email</option>
+                <option value="Honors College" data-i18n="heard.honors">Honors College</option>
+                <option value="INIT meeting" data-i18n="heard.init">INIT meeting</option>
+                <option value="Other club" data-i18n="heard.club" data-details>Another club or student organization</option>
+                <option value="Campus event or presentation" data-i18n="heard.event" data-details>A campus event or presentation</option>
+                <option value="Flyer or poster" data-i18n="heard.flyer">A flyer or poster (QR code)</option>
+              </optgroup>
+              <optgroup label="Friends and social media" data-i18n-label="heard.groupSocial">
+                <option value="Classmate or friend" data-i18n="heard.friend">A classmate or friend</option>
+                <option value="Text or group chat" data-i18n="heard.chat">A text or group chat (WhatsApp, GroupMe…)</option>
+                <option value="LinkedIn" data-i18n="heard.linkedin">LinkedIn</option>
+                <option value="Instagram" data-i18n="heard.instagram">Instagram</option>
+                <option value="Other social media" data-i18n="heard.social">Another social network (TikTok, Facebook, X…)</option>
+              </optgroup>
+              <optgroup label="Other ways" data-i18n-label="heard.groupOther">
+                <option value="Web search" data-i18n="heard.search">A web search (Google…)</option>
+                <option value="Other" data-i18n="heard.other">Other</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <!-- Optional details, shown only for the options marked data-details above (app.js).
+               Cleared if they switch to another option. Short, and asks for no personal details. -->
+          <div class="field heard-details" id="heard-details-field" hidden>
+            <label for="heard_details"><span data-i18n="heardDetails.label">Would you like to add more details?</span> <span class="hint" id="heard-details-hint" data-i18n="heardDetails.hint">Optional. For example, the class, club or event. Please don't include your own name or contact details.</span></label>
+            <input type="text" id="heard_details" name="heard_details" maxlength="100" autocomplete="off" aria-describedby="heard-details-hint">
+          </div>
+          <p class="privacy send-note" data-i18n-html="habits.sendNote">When you tap “See my results,” your answers are sent with no name, email or student ID. <a href="privacy.html">Privacy policy</a></p>
+        </div>
+
         <!-- Section navigation: one group of questions at a time (app.js shows/hides the fieldsets above).
              The dots and the Back/Next buttons are pinned together at the bottom of the screen. -->
         <div class="habit-footer">
@@ -470,45 +515,6 @@
           </div>
         </fieldset>
 
-        <div class="field select-field">
-          <label for="heard_from" data-i18n="heard.label">Where did you hear about this?</label>
-          <!-- The saved value is always the same short English code, whatever language is showing.
-               The first five codes (Tabling, Honors College, INIT meeting, Other club, Other) are unchanged
-               from the first version, so older and newer responses match. Groups only help people scan the list. -->
-          <select id="heard_from" name="heard_from" required>
-            <option value="" data-i18n="heard.choose">Choose one</option>
-            <optgroup label="At Miami Dade College" data-i18n-label="heard.groupMdc">
-              <option value="Tabling – North Campus" data-i18n="heard.tabling">Tabling – North Campus</option>
-              <option value="Professor – in class" data-i18n="heard.profClass" data-details>A professor, in class</option>
-              <option value="Professor – email or course page" data-i18n="heard.profOnline" data-details>A professor's email or course page</option>
-              <option value="Department or chairperson" data-i18n="heard.department" data-details>A department chair or department email</option>
-              <option value="Honors College" data-i18n="heard.honors">Honors College</option>
-              <option value="INIT meeting" data-i18n="heard.init">INIT meeting</option>
-              <option value="Other club" data-i18n="heard.club" data-details>Another club or student organization</option>
-              <option value="Campus event or presentation" data-i18n="heard.event" data-details>A campus event or presentation</option>
-              <option value="Flyer or poster" data-i18n="heard.flyer">A flyer or poster (QR code)</option>
-            </optgroup>
-            <optgroup label="Friends and social media" data-i18n-label="heard.groupSocial">
-              <option value="Classmate or friend" data-i18n="heard.friend">A classmate or friend</option>
-              <option value="Text or group chat" data-i18n="heard.chat">A text or group chat (WhatsApp, GroupMe…)</option>
-              <option value="LinkedIn" data-i18n="heard.linkedin">LinkedIn</option>
-              <option value="Instagram" data-i18n="heard.instagram">Instagram</option>
-              <option value="Other social media" data-i18n="heard.social">Another social network (TikTok, Facebook, X…)</option>
-            </optgroup>
-            <optgroup label="Other ways" data-i18n-label="heard.groupOther">
-              <option value="Web search" data-i18n="heard.search">A web search (Google…)</option>
-              <option value="Other" data-i18n="heard.other">Other</option>
-            </optgroup>
-          </select>
-        </div>
-
-        <!-- Optional details, shown only for the options marked data-details above (app.js).
-             Cleared if they switch to another option. Short, and asks for no personal details. -->
-        <div class="field heard-details" id="heard-details-field" hidden>
-          <label for="heard_details"><span data-i18n="heardDetails.label">Would you like to add more details?</span> <span class="hint" id="heard-details-hint" data-i18n="heardDetails.hint">Optional. For example, the class, club or event. Please don't include your own name or contact details.</span></label>
-          <input type="text" id="heard_details" name="heard_details" maxlength="100" autocomplete="off" aria-describedby="heard-details-hint">
-        </div>
-
         <!-- Filled in by app.js right before sending. -->
         <input type="hidden" name="video_hours">
         <input type="hidden" name="kwh_total">
@@ -528,6 +534,9 @@
         <input type="hidden" name="habits_changed">
         <input type="hidden" name="model_version">
         <input type="hidden" name="language">
+        <!-- Random code made in the browser (not tied to the person or device). The same code is sent with the
+             results form, so a pledge can be matched to its results row. -->
+        <input type="hidden" name="response_id">
 
         <p class="form-error" id="form-error" role="alert" tabindex="-1" hidden></p>
 
@@ -549,6 +558,27 @@
           <a class="btn btn-quiet" href="about.html" data-i18n="thanks.how">How we calculated this</a>
         </div>
       </section>
+    </form>
+
+    <!--
+      RESULTS FORM ("results-responses"): sent once, by app.js, when someone first taps "See my results",
+      so we keep their answers even if they never pledge. This hidden copy is only here so Netlify registers
+      the form and its fields when the site deploys; nobody sees it or fills it in. The pledge form above
+      still sends everything, and response_id links the two rows.
+    -->
+    <form name="results-responses" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden aria-hidden="true">
+      <input type="hidden" name="form-name" value="results-responses">
+      <input name="bot-field">
+      <input name="response_id">
+      <input name="video_hours_phone"><input name="video_hours_laptop"><input name="video_hours_tv"><input name="video_hours_monitor">
+      <input name="video_quality"><input name="music_hours"><input name="social_hours"><input name="gaming_hours"><input name="gaming_platform">
+      <input name="study_hours"><input name="work_hours"><input name="browse_hours"><input name="calls_hours">
+      <input name="ai_prompts"><input name="ai_images"><input name="cloud_gb"><input name="phones"><input name="laptops"><input name="tablets">
+      <input name="heard_from"><input name="heard_details">
+      <input name="video_hours"><input name="kwh_total"><input name="co2_kg_total">
+      <input name="kwh_video"><input name="kwh_music"><input name="kwh_social"><input name="kwh_gaming"><input name="kwh_study">
+      <input name="kwh_work"><input name="kwh_calls"><input name="kwh_ai"><input name="kwh_cloud"><input name="kwh_devices">
+      <input name="top_category"><input name="habits_changed"><input name="model_version"><input name="language">
     </form>
 
     <!-- Pop-up when someone taps "See my results" without changing any habit (app.js opens it with showModal(),
